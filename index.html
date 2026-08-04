@@ -105,6 +105,7 @@
       border-radius: 20px;
       box-shadow: 0 1px 2px rgba(0,0,0,0.05);
       transition: opacity 0.2s, background-color 0.3s;
+      white-space: nowrap;
     }
     .header-nav-link:active {
       opacity: 0.7;
@@ -206,6 +207,12 @@
       -webkit-touch-callout: none;
       position: relative;
     }
+    /* ★ボタン内の「円」用スタイル */
+    button.btn-input .btn-unit {
+      font-size: 16px;
+      font-weight: 600;
+      margin-left: 2px;
+    }
     button.btn-input:active {
       transform: translateY(5px);
       box-shadow: 0 0 0 var(--btn-shadow);
@@ -262,7 +269,7 @@
 </head>
 <body ontouchstart="">
 
-  <!-- ヘッダーエリア（閲覧画面への同一タブリンク） -->
+  <!-- ヘッダーエリア -->
   <div class="header-bar">
     <h2>NF受付 記録システム</h2>
     <a href="viewer.html" class="header-nav-link">閲覧画面へ ↗</a>
@@ -286,12 +293,12 @@
     </div>
   </div>
 
-  <!-- 金額ボタン -->
+  <!-- ★金額ボタン（「円」表記を追加） -->
   <div class="btn-grid">
-    <button class="btn-input" onclick="記録(250)">250</button>
-    <button class="btn-input" onclick="記録(200)">200</button>
-    <button class="btn-input" onclick="記録(150)">150</button>
-    <button class="btn-input" onclick="記録(100)">100</button>
+    <button class="btn-input" onclick="記録(250)">250<span class="btn-unit">円</span></button>
+    <button class="btn-input" onclick="記録(200)">200<span class="btn-unit">円</span></button>
+    <button class="btn-input" onclick="記録(150)">150<span class="btn-unit">円</span></button>
+    <button class="btn-input" onclick="記録(100)">100<span class="btn-unit">円</span></button>
   </div>
 
   <!-- 操作用ボタン -->
