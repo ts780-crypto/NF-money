@@ -3,81 +3,180 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>受付記録システム</title>
+  <title>NF受付記録システム</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; max-width: 400px; margin: 0 auto; background-color: #f8f9fa; }
-    h2 { text-align: center; color: #333; }
-    
+    /* 全体スタイルの刷新 */
+    :root {
+      --bg-color: #f3f4f6;
+      --card-bg: #ffffff;
+      --text-main: #1f2937;
+      --text-sub: #6b7280;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --border: #e5e7eb;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      padding: 24px 16px;
+      max-width: 420px;
+      margin: 0 auto;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h2 {
+      text-align: center;
+      color: #111827;
+      font-size: 20px;
+      font-weight: 700;
+      margin-top: 0;
+      margin-bottom: 20px;
+      letter-spacing: -0.02em;
+    }
+
     button {
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
+      font-family: inherit;
     }
 
     /* 担当者名入力 */
-    .user-box { margin-bottom: 15px; }
-    .user-box label { display: block; font-size: 13px; color: #666; margin-bottom: 4px; }
-    .user-box input { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; }
+    .user-box {
+      background: var(--card-bg);
+      padding: 14px 16px;
+      border-radius: 14px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border);
+    }
+    .user-box label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+      letter-spacing: 0.02em;
+    }
+    .user-box input {
+      width: 100%;
+      padding: 8px 10px;
+      box-sizing: border-box;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      color: var(--text-main);
+      background-color: #f9fafb;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .user-box input:focus {
+      border-color: var(--primary);
+      background-color: #fff;
+    }
 
-    /* 集計表示エリア */
+    /* 集計表示エリア（グラデーションカード） */
     .summary-box {
       display: flex;
       justify-content: space-around;
-      background: #ffffff;
-      padding: 12px 10px;
-      border-radius: 10px;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: white;
+      padding: 18px 12px;
+      border-radius: 16px;
       margin-bottom: 20px;
-      border: 1px solid #e0e0e0;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
     }
     .summary-item { text-align: center; }
-    .summary-label { font-size: 12px; color: #666; margin-bottom: 4px; }
-    .summary-value { font-size: 22px; font-weight: bold; color: #007bff; }
-    .unit { font-size: 13px; font-weight: normal; color: #555; }
+    .summary-label { font-size: 12px; color: rgba(255, 255, 255, 0.8); margin-bottom: 4px; font-weight: 500; }
+    .summary-value { font-size: 26px; font-weight: 800; letter-spacing: -0.03em; }
+    .unit { font-size: 13px; font-weight: 500; opacity: 0.9; }
 
-    /* 立体的な凹むボタン */
-    .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+    /* 金額ボタン（洗練された立体ボタン） */
+    .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
     button.btn-input {
-      padding: 18px; font-size: 22px; font-weight: bold;
-      background: #007bff; color: white; border: none; border-radius: 12px;
+      padding: 18px 10px;
+      font-size: 24px;
+      font-weight: 700;
+      background: #ffffff;
+      color: #1d4ed8;
+      border: 1px solid #dbeafe;
+      border-radius: 16px;
       cursor: pointer;
-      box-shadow: 0 5px 0 #0056b3;
-      transition: all 0.05s ease;
-      
-      /* スマホ用の長押し・文字選択防止 */
+      box-shadow: 0 5px 0 #93c5fd;
+      transition: all 0.06s ease;
       user-select: none;
       -webkit-user-select: none;
       -webkit-touch-callout: none;
-      
       position: relative;
     }
-
-    /* タップされた時（:active）に凹ませる */
     button.btn-input:active {
       transform: translateY(5px);
-      box-shadow: 0 0 0 #0056b3;
+      box-shadow: 0 0 0 #93c5fd;
+      background-color: #eff6ff;
     }
 
     /* 操作ボタン */
-    .action-group { display: flex; gap: 8px; margin-bottom: 15px; }
-    .btn-action { flex: 1; padding: 8px 4px; cursor: pointer; border-radius: 6px; border: 1px solid #ccc; background: #fff; font-size: 13px; }
+    .action-group { display: flex; gap: 8px; margin-bottom: 24px; }
+    .btn-action {
+      flex: 1;
+      padding: 10px 4px;
+      cursor: pointer;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-sub);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      transition: background-color 0.15s;
+    }
+    .btn-action:active { background-color: #f3f4f6; }
+    .btn-action.cancel { color: #d97706; border-color: #fde68a; background-color: #fffbeb; }
+    .btn-action.delete { color: #dc2626; border-color: #fecaca; background-color: #fef2f2; }
 
     /* 履歴テーブル */
-    table { width: 100%; border-collapse: collapse; background: #fff; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; font-size: 14px; }
-    th { background: #f4f4f4; }
+    h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 10px;
+    }
+    .table-card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px 10px; text-align: center; font-size: 13px; }
+    th {
+      background: #f9fafb;
+      color: var(--text-sub);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      border-bottom: 1px solid #f3f4f6;
+      color: var(--text-main);
+    }
+    tr:last-child td { border-bottom: none; }
   </style>
 </head>
 <body ontouchstart="">
 
-  <h2>受付記録システム</h2>
+  <h2>NF受付記録システム</h2>
 
   <!-- 担当者入力欄 -->
   <div class="user-box">
-    <label for="userName">担当者名※詳細な個人情報は載せないでください:</label>
+    <label for="userName">担当者名 ※個人情報は入力しないでください</label>
     <input type="text" id="userName" placeholder="例: 山田" onchange="localStorage.setItem('savedUserName', this.value)">
   </div>
 
-  <!-- 集計表示エリア -->
+  <!-- 合計・件数の集計表示エリア -->
   <div class="summary-box">
     <div class="summary-item">
       <div class="summary-label">売上件数</div>
@@ -97,21 +196,23 @@
     <button class="btn-input" onclick="記録(100)">100</button>
   </div>
 
-  <!-- 操作用ボタン（★「1件取消」ボタンを追加） -->
+  <!-- 操作用ボタン -->
   <div class="action-group">
     <button class="btn-action" onclick="csvダウンロード()">CSV出力</button>
-    <button class="btn-action" onclick="直近1件削除()" style="color: #d9534f; font-weight: bold;">直近1件取消</button>
-    <button class="btn-action" onclick="データ全削除()" style="color: red;">全消去</button>
+    <button class="btn-action cancel" onclick="直近1件削除()">1件取消</button>
+    <button class="btn-action delete" onclick="データ全削除()">全消去</button>
   </div>
 
-  <!-- 共有記録一覧（リアルタイム更新） -->
+  <!-- 共有記録一覧 -->
   <h3>共有記録一覧</h3>
-  <table>
-    <thead>
-      <tr><th>日時</th><th>金額</th><th>担当</th></tr>
-    </thead>
-    <tbody id="logTableBody"></tbody>
-  </table>
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr><th>日時</th><th>金額</th><th>担当</th></tr>
+      </thead>
+      <tbody id="logTableBody"></tbody>
+    </table>
+  </div>
 
   <!-- Firebase SDK の読み込み -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -133,15 +234,13 @@
     const database = firebase.database();
     const dbRef = database.ref('moneyLogs');
 
-    let currentLogs = []; // CSV出力・集計・削除用のデータ保持用
+    let currentLogs = [];
 
     // 画面が開いたとき & データベースの変更を常時監視
     window.onload = function() {
-      // 保存した名前を復元
       const savedName = localStorage.getItem('savedUserName');
       if (savedName) document.getElementById('userName').value = savedName;
 
-      // 共通データベースに変化があったら自動実行（リアルタイム同期）
       dbRef.on('value', (snapshot) => {
         const data = snapshot.val();
         const tbody = document.getElementById('logTableBody');
@@ -152,18 +251,15 @@
         let sum = 0;
 
         if (data) {
-          // ★各データにデータベース上の固有ID（key）を含めて配列化
           const logs = Object.keys(data).map(key => ({
             key: key,
             ...data[key]
           }));
           currentLogs = logs;
 
-          // 集計計算（個数と合計金額）
           count = logs.length;
           sum = logs.reduce((total, item) => total + Number(item.amount || 0), 0);
 
-          // 新しい順（降順）に並べて表示
           logs.slice().reverse().forEach(item => {
             const row = tbody.insertRow();
             row.insertCell(0).textContent = item.date;
@@ -172,7 +268,6 @@
           });
         }
 
-        // 画面の集計数字を更新
         document.getElementById('totalCount').innerHTML = `${count} <span class="unit">件</span>`;
         document.getElementById('totalAmount').innerHTML = `${sum.toLocaleString()} <span class="unit">円</span>`;
       });
@@ -196,24 +291,20 @@
         timestamp: firebase.database.ServerValue.TIMESTAMP
       };
 
-      // クラウド上の共有データベースへ追加
       dbRef.push(newData);
     }
 
-    // ★追加：最新の記録を1件だけ削除する機能
+    // 直近1件削除
     function 直近1件削除() {
       if (currentLogs.length === 0) {
         alert('削除するデータがありません');
         return;
       }
 
-      // 配列の最後（＝最新）のデータを取得
       const lastLog = currentLogs[currentLogs.length - 1];
-
       const confirmMsg = `直近の記録を取り消しますか？\n\n・日時: ${lastLog.date}\n・金額: ${lastLog.amount}円\n・担当: ${lastLog.user || '未設定'}`;
       
       if (confirm(confirmMsg)) {
-        // Firebaseから該当する1件のデータだけ削除
         dbRef.child(lastLog.key).remove();
       }
     }
