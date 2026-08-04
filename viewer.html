@@ -42,16 +42,19 @@
       transition: background-color 0.3s, color 0.3s;
     }
 
-    header {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-
-    /* 上部リンクエリア */
-    .header-nav {
+    /* ★入力側と統一したヘッダーバー */
+    .header-bar {
       display: flex;
-      justify-content: flex-start;
-      margin-bottom: 16px;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .header-bar h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
     }
     .header-nav-link {
       font-size: 13px;
@@ -64,38 +67,36 @@
       border-radius: 20px;
       box-shadow: 0 1px 2px rgba(0,0,0,0.05);
       transition: opacity 0.2s, background-color 0.3s;
+      white-space: nowrap;
     }
     .header-nav-link:active {
       opacity: 0.7;
     }
 
-    /* ステータスバッジ */
+    /* ステータス＆更新日時バー */
+    .status-sub-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
     .status-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 12px;
+      padding: 4px 10px;
       border-radius: 20px;
       background-color: var(--status-bg);
       color: var(--status-text);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
-      margin-bottom: 12px;
     }
     .status-dot {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background-color: currentColor;
     }
-
-    h1 {
-      font-size: 22px;
-      font-weight: 700;
-      margin: 0 0 4px 0;
-      letter-spacing: -0.02em;
-    }
-
     .last-update {
       font-size: 12px;
       color: var(--text-sub);
@@ -115,10 +116,6 @@
       text-align: center;
       color: #ffffff;
       box-shadow: 0 10px 20px -3px rgba(37, 99, 235, 0.3);
-    }
-
-    .summary-card.count-card {
-      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
     }
 
     .summary-card .label {
@@ -147,23 +144,24 @@
 </head>
 <body>
 
-  <header>
-    <!-- 入力画面への同一タブリンク -->
-    <div class="header-nav">
-      <a href="index.html" class="header-nav-link">← 入力画面へ</a>
-    </div>
+  <!-- ★入力サイトと統一したメインヘッダー -->
+  <div class="header-bar">
+    <h2>NF受付 集計モニター</h2>
+    <a href="index.html" class="header-nav-link">← 入力画面へ</a>
+  </div>
 
+  <!-- サブステータスバー -->
+  <div class="status-sub-bar">
     <div class="status-badge">
       <span class="status-dot"></span>
       リアルタイム同期中
     </div>
-    <h1>NF受付 売上状況</h1>
     <div class="last-update" id="lastUpdate">最終更新: --:--:--</div>
-  </header>
+  </div>
 
   <main class="summary-grid">
     <!-- 売上件数 -->
-    <div class="summary-card count-card">
+    <div class="summary-card">
       <div class="label">売上件数</div>
       <div class="value" id="totalCount">0 <span class="unit">件</span></div>
     </div>
