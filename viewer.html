@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>NF受付 集計モニター</title>
+  <style>
+    /* カラー変数（ライトモード） */
+    :root {
+      --bg-color: #f3f4f6;
+      --card-bg: #ffffff;
+      --text-main: #111827;
+      --text-sub: #6b7280;
+      --border: #e5e7eb;
+      --status-bg: #dcfce7;
+      --status-text: #15803d;
+    }
+
+    /* ダークモード自動対応 */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #111827;
+        --card-bg: #1f2937;
+        --text-main: #f9fafb;
+        --text-sub: #9ca3af;
+        --border: #374151;
+        --status-bg: #064e3b;
+        --status-text: #4ade80;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      padding: 32px 16px;
+      max-width: 480px;
+      margin: 0 auto;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    /* ステータスバッジ */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background-color: var(--status-bg);
+      color: var(--status-text);
+      font-size: 12px;
+      font-weight: 600;
+      margin: 0 auto 16px auto;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: currentColor;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 8px 0 4px 0;
+      letter-spacing: -0.02em;
+    }
+
+    .last-update {
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+
+    /* 大型集計カード */
+    .summary-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .summary-card {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      border-radius: 20px;
+      padding: 24px 16px;
+      text-align: center;
+      color: #ffffff;
+      box-shadow: 0 10px 20px -3px rgba(37, 99, 235, 0.3);
+    }
+
+    .summary-card.count-card {
+      background: var(--card-bg);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .summary-card .label {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      opacity: 0.9;
+      letter-spacing: 0.05em;
+    }
+
+    .summary-card.count-card .label {
+      color: var(--text-sub);
+    }
+
+    .summary-card .value {
+      font-size: 42px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    .summary-card .unit {
+      font-size: 18px;
+      font-weight: 600;
+      margin-left: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="status-badge">
+      <span class="status-dot"></span>
+      リアルタイム同期中
+    </div>
+    <h1>NF受付 売上状況</h1>
+    <div class="last-update" id="lastUpdate">最終更新: --:--:--</div>
+  </header>
+
+  <main class="summary-grid">
+    <!-- 売上件数 -->
+    <div class="summary-card count-card">
+      <div class="label">売上件数</div>
+      <div class="value" id="totalCount">0 <span class="unit">件</span></div>
+    </div>
+
+    <!-- 合計金額 -->
+    <div class="summary-card">
+      <div class="label">合計金額</div>
+      <div class="value" id="totalAmount">0 <span class="unit">円</span></div>
+    </div>
+  </main>
+
+  <!-- Firebase SDK の読み込み -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
+  <script>
+    // 既存と同じFirebase設定を使用
+    const firebaseConfig = {
+      apiKey: "AIzaSyCXcHT4dFy4w_hVwhGk4WOcQujduJYusZ4",
+      authDomain: "nf-reception.firebaseapp.com",
+      databaseURL: "https://nf-reception-default-rtdb.asia-southeast1.firebasedatabase.app/",
+      projectId: "nf-reception",
+      storageBucket: "nf-reception.firebasestorage.app",
+      messagingSenderId: "64440957261",
+      appId: "1:64440957261:web:ea0de56a0b7cf0ede8df04"
+    };
+
+    // Firebaseの初期化
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const dbRef = database.ref('moneyLogs');
+
+    // データベースの更新を常時監視
+    dbRef.on('value', (snapshot) => {
+      const data = snapshot.val();
+      let count = 0;
+      let sum = 0;
+
+      if (data) {
+        const logs = Object.values(data);
+        count = logs.length;
+        sum = logs.reduce((total, item) => total + Number(item.amount || 0), 0);
+      }
+
+      // 数値表示の更新
+      document.getElementById('totalCount').innerHTML = `${count} <span class="unit">件</span>`;
+      document.getElementById('totalAmount').innerHTML = `${sum.toLocaleString()} <span class="unit">円</span>`;
+
+      // 最終受信日時の更新
+      const now = new Date();
+      const timeStr = String(now.getHours()).padStart(2, '0') + ':' +
+                      String(now.getMinutes()).padStart(2, '0') + ':' +
+                      String(now.getSeconds()).padStart(2, '0');
+      document.getElementById('lastUpdate').textContent = `最終更新: ${timeStr}`;
+    });
+  </script>
+
+</body>
+</html>
