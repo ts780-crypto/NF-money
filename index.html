@@ -2,11 +2,16 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>みんなの金額記録アプリ</title>
   <style>
     body { font-family: sans-serif; padding: 20px; max-width: 400px; margin: 0 auto; background-color: #f8f9fa; }
     h2 { text-align: center; color: #333; }
+
+    button {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
     
     /* 担当者名入力 */
     .user-box { margin-bottom: 15px; }
@@ -29,14 +34,24 @@
     .summary-value { font-size: 22px; font-weight: bold; color: #007bff; }
     .unit { font-size: 13px; font-weight: normal; color: #555; }
 
-    /* 入力ボタン */
-    .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+    /* ★立体的な凹むボタンのアニメーション */
+    .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
     button.btn-input {
-      padding: 20px; font-size: 20px; font-weight: bold;
-      background: #007bff; color: white; border: none; border-radius: 8px;
-      cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding: 18px; font-size: 22px; font-weight: bold;
+      background: #007bff; color: white; border: none; border-radius: 12px;
+      cursor: pointer;
+      /* ボタンの下に厚み（影）を作る */
+      box-shadow: 0 5px 0 #0056b3;
+      transition: all 0.05s ease;
+      user-select: none;
+      -webkit-user-select: none;
+      position: relative;
     }
-    button.btn-input:active { background: #0056b3; }
+    /* タップした瞬間に凹む処理 */
+    button.btn-input:active {
+      transform: translateY(5px); /* 5px下へ押し込む */
+      box-shadow: 0 0 0 #0056b3; /* 影を潰す */
+    }
 
     /* 操作ボタン */
     .action-group { display: flex; justify-content: space-between; margin-bottom: 15px; }
