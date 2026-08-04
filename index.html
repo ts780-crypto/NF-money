@@ -33,11 +33,6 @@
 
       --table-header-bg: #f9fafb;
       --table-border: #f3f4f6;
-
-      /* ★タイル用の色 */
-      --tile-count-bg: #ffffff;
-      --tile-count-text: #111827;
-      --tile-count-label: #6b7280;
     }
 
     /* 端末設定がダークモードの時に自動適用されるカラー変数 */
@@ -68,11 +63,6 @@
 
         --table-header-bg: #111827;
         --table-border: #374151;
-
-        /* ★ダークモード時のタイル用色 */
-        --tile-count-bg: #1f2937;
-        --tile-count-text: #f9fafb;
-        --tile-count-label: #9ca3af;
       }
     }
 
@@ -136,7 +126,7 @@
       border-color: var(--primary);
     }
 
-    /* ★視認性を高めた集計表示エリア（独立2カード構成） */
+    /* ★デザインを統一した集計タイルエリア */
     .summary-box {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -144,49 +134,35 @@
       margin-bottom: 20px;
     }
     .summary-card {
-      background: var(--tile-count-bg);
-      border: 1px solid var(--border);
-      padding: 16px 10px;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
       border-radius: 16px;
+      padding: 16px 10px;
       text-align: center;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      color: #ffffff;
+      box-shadow: 0 8px 16px -3px rgba(37, 99, 235, 0.3);
       display: flex;
       flex-direction: column;
       justify-content: center;
     }
     .summary-card .summary-label {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--tile-count-label);
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.85);
       margin-bottom: 6px;
       letter-spacing: 0.03em;
     }
     .summary-card .summary-value {
       font-size: 26px;
       font-weight: 800;
-      color: var(--tile-count-text);
+      color: #ffffff;
       letter-spacing: -0.03em;
       line-height: 1.1;
     }
     .summary-card .unit {
       font-size: 13px;
       font-weight: 600;
+      opacity: 0.9;
       margin-left: 2px;
-    }
-
-    /* 合計金額カード（メインのアクセント） */
-    .summary-card.highlight {
-      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-      border: none;
-      color: #ffffff;
-      box-shadow: 0 8px 16px -3px rgba(37, 99, 235, 0.35);
-    }
-    .summary-card.highlight .summary-label {
-      color: rgba(255, 255, 255, 0.9);
-    }
-    .summary-card.highlight .summary-value {
-      color: #ffffff;
-      font-size: 28px;
     }
 
     /* 金額ボタン */
@@ -271,13 +247,13 @@
     <input type="text" id="userName" placeholder="例: 山田" onchange="localStorage.setItem('savedUserName', this.value)">
   </div>
 
-  <!-- ★修正：独立2カード形式の集計エリア -->
+  <!-- ★統一デザインの集計エリア -->
   <div class="summary-box">
     <div class="summary-card">
       <div class="summary-label">売上件数</div>
       <div class="summary-value" id="totalCount">0 <span class="unit">件</span></div>
     </div>
-    <div class="summary-card highlight">
+    <div class="summary-card">
       <div class="summary-label">合計金額</div>
       <div class="summary-value" id="totalAmount">0 <span class="unit">円</span></div>
     </div>
