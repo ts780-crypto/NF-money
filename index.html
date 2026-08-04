@@ -13,6 +13,22 @@
     .user-box label { display: block; font-size: 13px; color: #666; margin-bottom: 4px; }
     .user-box input { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; }
 
+    /* ★追加：集計表示エリアのスタイル */
+    .summary-box {
+      display: flex;
+      justify-content: space-around;
+      background: #ffffff;
+      padding: 12px 10px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #e0e0e0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .summary-item { text-align: center; }
+    .summary-label { font-size: 12px; color: #666; margin-bottom: 4px; }
+    .summary-value { font-size: 22px; font-weight: bold; color: #007bff; }
+    .unit { font-size: 13px; font-weight: normal; color: #555; }
+
     /* 入力ボタン */
     .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
     button.btn-input {
@@ -40,6 +56,18 @@
   <div class="user-box">
     <label for="userName">担当者名:</label>
     <input type="text" id="userName" placeholder="例: 山田" onchange="localStorage.setItem('savedUserName', this.value)">
+  </div>
+
+  <!-- ★追加：合計・件数の集計表示エリア -->
+  <div class="summary-box">
+    <div class="summary-item">
+      <div class="summary-label">売上件数</div>
+      <div class="summary-value" id="totalCount">0 <span class="unit">件</span></div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-label">合計金額</div>
+      <div class="summary-value" id="totalAmount">0 <span class="unit">円</span></div>
+    </div>
   </div>
 
   <!-- 金額ボタン -->
@@ -70,23 +98,22 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 
   <script>
-    // ★ステップ1で取得した自分の Firebase 設定情報に書き換えてください
-  const firebaseConfig = {
-    apiKey: "AIzaSyCXcHT4dFy4w_hVwhGk4WOcQujduJYusZ4",
-    authDomain: "nf-reception.firebaseapp.com",
-    databaseURL: "https://nf-reception-default-rtdb.asia-southeast1.firebasedatabase.app/",
-    projectId: "nf-reception",
-    storageBucket: "nf-reception.firebasestorage.app",
-    messagingSenderId: "64440957261",
-    appId: "1:64440957261:web:ea0de56a0b7cf0ede8df04"
-  };
+   const firebaseConfig = {
+      apiKey: "AIzaSyCXcHT4dFy4w_hVwhGk4WOcQujduJYusZ4",
+      authDomain: "nf-reception.firebaseapp.com",
+      databaseURL: "https://nf-reception-default-rtdb.asia-southeast1.firebasedatabase.app/",
+      projectId: "nf-reception",
+      storageBucket: "nf-reception.firebasestorage.app",
+      messagingSenderId: "64440957261",
+      appId: "1:64440957261:web:ea0de56a0b7cf0ede8df04"
+    };
 
     // Firebaseの初期化
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
     const dbRef = database.ref('moneyLogs');
 
-    let currentLogs = []; // CSV出力用の全データ保持用
+    let currentLogs = []; // CSV出力・集計用のデータ保持用
 
     // 画面が開いたとき & データベースの変更を常時監視
     window.onload = function() {
@@ -101,10 +128,17 @@
         tbody.innerHTML = '';
         currentLogs = [];
 
+        let count = 0;
+        let sum = 0;
+
         if (data) {
           // データを配列に変換
           const logs = Object.keys(data).map(key => data[key]);
           currentLogs = logs;
+
+          // ★集計計算（個数と合計金額）
+          count = logs.length;
+          sum = logs.reduce((total, item) => total + Number(item.amount || 0), 0);
 
           // 新しい順（降順）に並べて表示
           logs.slice().reverse().forEach(item => {
@@ -114,6 +148,10 @@
             row.insertCell(2).textContent = item.user || "未設定";
           });
         }
+
+        // ★画面の集計数字を更新（合計金額はカンマ区切り表示）
+        document.getElementById('totalCount').innerHTML = `${count} <span class="unit">件</span>`;
+        document.getElementById('totalAmount').innerHTML = `${sum.toLocaleString()} <span class="unit">円</span>`;
       });
     };
 
