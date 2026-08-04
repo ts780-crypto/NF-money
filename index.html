@@ -1,0 +1,122 @@
+HTML
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>金額記録アプリ</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 400px; margin: 0 auto; }
+    .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+    button.btn-input { padding: 20px; font-size: 20px; font-weight: bold; background: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    button.btn-input:active { background: #0056b3; }
+    .action-group { display: flex; justify-content: space-between; margin-bottom: 15px; }
+    .btn-action { padding: 8px 12px; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background: #f4f4f4; }
+  </style>
+</head>
+<body>
+
+  <h2>金額記録</h2>
+
+  <!-- 入力用ボタン -->
+  <div class="btn-grid">
+    <button class="btn-input" onclick="記録(250)">250</button>
+    <button class="btn-input" onclick="記録(200)">200</button>
+    <button class="btn-input" onclick="記録(150)">150</button>
+    <button class="btn-input" onclick="記録(100)">100</button>
+  </div>
+
+  <!-- 操作用ボタン -->
+  <div class="action-group">
+    <button class="btn-action" onclick="csvダウンロード()">CSV出力</button>
+    <button class="btn-action" onclick="データ全削除()" style="color: red;">全消去</button>
+  </div>
+
+  <!-- 記録表示用テーブル -->
+  <h3>記録一覧</h3>
+  <table>
+    <thead>
+      <tr><th>日時</th><th>金額</th></tr>
+    </thead>
+    <tbody id="logTableBody"></tbody>
+  </table>
+
+  <script>
+    // 画面が開かれたときに過去のデータを読み込む
+    window.onload = function() {
+      表示更新();
+    };
+
+    // ボタンを押したときの処理
+    function 記録(金額) {
+      const now = new Date();
+      // 日時フォーマット (YYYY/MM/DD hh:mm:ss)
+      const dateStr = now.getFullYear() + '/' +
+        String(now.getMonth() + 1).padStart(2, '0') + '/' +
+        String(now.getDate()).padStart(2, '0') + ' ' +
+        String(now.getHours()).padStart(2, '0') + ':' +
+        String(now.getMinutes()).padStart(2, '0') + ':' +
+        String(now.getSeconds()).padStart(2, '0');
+
+      const newData = { date: dateStr, amount: 金額 };
+      
+      // ブラウザのLocalStorageから保存済みデータを取得して追加
+      const logs = JSON.parse(localStorage.getItem('moneyLogs') || '[]');
+      logs.push(newData);
+      
+      // LocalStorageに保存
+      localStorage.setItem('moneyLogs', JSON.stringify(logs));
+      
+      表示更新();
+    }
+
+    // テーブルの表示を最新状態にする
+    function 表示更新() {
+      const logs = JSON.parse(localStorage.getItem('moneyLogs') || '[]');
+      const tbody = document.getElementById('logTableBody');
+      tbody.innerHTML = '';
+
+      // 新しい順（降順）に並べて表示
+      logs.slice().reverse().forEach(item => {
+        const row = tbody.insertRow();
+        row.insertCell(0).textContent = item.date;
+        row.insertCell(1).textContent = item.amount;
+      });
+    }
+
+    // 蓄積されたデータをCSVファイルとしてダウンロード
+    function csvダウンロード() {
+      const logs = JSON.parse(localStorage.getItem('moneyLogs') || '[]');
+      if (logs.length === 0) {
+        alert('データがありません');
+        return;
+      }
+
+      let csvContent = '\uFEFF日時,金額\n'; // 文字化け防止のBOMコード付き
+      logs.forEach(item => {
+        csvContent += `"${item.date}",${item.amount}\n`;
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = '金額記録.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // データの全削除
+    function データ全削除() {
+      if (confirm('すべての記録を削除しますか？')) {
+        localStorage.removeItem('moneyLogs');
+        表示更新();
+      }
+    }
+  </script>
+
+</body>
+</html>
