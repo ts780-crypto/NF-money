@@ -1,19 +1,34 @@
-HTML
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>金額記録アプリ</title>
+  <title>みんなの金額記録アプリ</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; max-width: 400px; margin: 0 auto; }
-    .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-    button.btn-input { padding: 20px; font-size: 20px; font-weight: bold; background: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    body { font-family: sans-serif; padding: 20px; max-width: 400px; margin: 0 auto; background-color: #f8f9fa; }
+    h2 { text-align: center; color: #333; }
+    
+    /* 担当者名入力 */
+    .user-box { margin-bottom: 15px; }
+    .user-box label { display: block; font-size: 13px; color: #666; margin-bottom: 4px; }
+    .user-box input { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; }
+
+    /* 入力ボタン */
+    .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+    button.btn-input {
+      padding: 20px; font-size: 20px; font-weight: bold;
+      background: #007bff; color: white; border: none; border-radius: 8px;
+      cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
     button.btn-input:active { background: #0056b3; }
+
+    /* 操作ボタン */
     .action-group { display: flex; justify-content: space-between; margin-bottom: 15px; }
     .btn-action { padding: 8px 12px; cursor: pointer; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+
+    /* 履歴テーブル */
+    table { width: 100%; border-collapse: collapse; background: #fff; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; font-size: 14px; }
     th { background: #f4f4f4; }
   </style>
 </head>
@@ -21,7 +36,13 @@ HTML
 
   <h2>金額記録</h2>
 
-  <!-- 入力用ボタン -->
+  <!-- 担当者入力欄 -->
+  <div class="user-box">
+    <label for="userName">担当者名:</label>
+    <input type="text" id="userName" placeholder="例: 山田" onchange="localStorage.setItem('savedUserName', this.value)">
+  </div>
+
+  <!-- 金額ボタン -->
   <div class="btn-grid">
     <button class="btn-input" onclick="記録(250)">250</button>
     <button class="btn-input" onclick="記録(200)">200</button>
@@ -35,25 +56,70 @@ HTML
     <button class="btn-action" onclick="データ全削除()" style="color: red;">全消去</button>
   </div>
 
-  <!-- 記録表示用テーブル -->
-  <h3>記録一覧</h3>
+  <!-- 共有記録一覧（リアルタイム更新） -->
+  <h3>共有記録一覧</h3>
   <table>
     <thead>
-      <tr><th>日時</th><th>金額</th></tr>
+      <tr><th>日時</th><th>金額</th><th>担当</th></tr>
     </thead>
     <tbody id="logTableBody"></tbody>
   </table>
 
+  <!-- Firebase SDK の読み込み -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
   <script>
-    // 画面が開かれたときに過去のデータを読み込む
+    // ★ステップ1で取得した自分の Firebase 設定情報に書き換えてください
+  const firebaseConfig = {
+    apiKey: "AIzaSyCXcHT4dFy4w_hVwhGk4WOcQujduJYusZ4",
+    authDomain: "nf-reception.firebaseapp.com",
+    projectId: "nf-reception",
+    storageBucket: "nf-reception.firebasestorage.app",
+    messagingSenderId: "64440957261",
+    appId: "1:64440957261:web:ea0de56a0b7cf0ede8df04"
+  };
+
+    // Firebaseの初期化
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const dbRef = database.ref('moneyLogs');
+
+    let currentLogs = []; // CSV出力用の全データ保持用
+
+    // 画面が開いたとき & データベースの変更を常時監視
     window.onload = function() {
-      表示更新();
+      // 保存した名前を復元
+      const savedName = localStorage.getItem('savedUserName');
+      if (savedName) document.getElementById('userName').value = savedName;
+
+      // 共通データベースに変化があったら自動実行（リアルタイム同期）
+      dbRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        const tbody = document.getElementById('logTableBody');
+        tbody.innerHTML = '';
+        currentLogs = [];
+
+        if (data) {
+          // データを配列に変換
+          const logs = Object.keys(data).map(key => data[key]);
+          currentLogs = logs;
+
+          // 新しい順（降順）に並べて表示
+          logs.slice().reverse().forEach(item => {
+            const row = tbody.insertRow();
+            row.insertCell(0).textContent = item.date;
+            row.insertCell(1).textContent = item.amount;
+            row.insertCell(2).textContent = item.user || "未設定";
+          });
+        }
+      });
     };
 
     // ボタンを押したときの処理
     function 記録(金額) {
+      const userName = document.getElementById('userName').value || "未設定";
       const now = new Date();
-      // 日時フォーマット (YYYY/MM/DD hh:mm:ss)
       const dateStr = now.getFullYear() + '/' +
         String(now.getMonth() + 1).padStart(2, '0') + '/' +
         String(now.getDate()).padStart(2, '0') + ' ' +
@@ -61,59 +127,42 @@ HTML
         String(now.getMinutes()).padStart(2, '0') + ':' +
         String(now.getSeconds()).padStart(2, '0');
 
-      const newData = { date: dateStr, amount: 金額 };
-      
-      // ブラウザのLocalStorageから保存済みデータを取得して追加
-      const logs = JSON.parse(localStorage.getItem('moneyLogs') || '[]');
-      logs.push(newData);
-      
-      // LocalStorageに保存
-      localStorage.setItem('moneyLogs', JSON.stringify(logs));
-      
-      表示更新();
+      const newData = {
+        date: dateStr,
+        amount: 金額,
+        user: userName,
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+      };
+
+      // クラウド上の共有データベースへ追加
+      dbRef.push(newData);
     }
 
-    // テーブルの表示を最新状態にする
-    function 表示更新() {
-      const logs = JSON.parse(localStorage.getItem('moneyLogs') || '[]');
-      const tbody = document.getElementById('logTableBody');
-      tbody.innerHTML = '';
-
-      // 新しい順（降順）に並べて表示
-      logs.slice().reverse().forEach(item => {
-        const row = tbody.insertRow();
-        row.insertCell(0).textContent = item.date;
-        row.insertCell(1).textContent = item.amount;
-      });
-    }
-
-    // 蓄積されたデータをCSVファイルとしてダウンロード
+    // CSVダウンロード機能
     function csvダウンロード() {
-      const logs = JSON.parse(localStorage.getItem('moneyLogs') || '[]');
-      if (logs.length === 0) {
+      if (currentLogs.length === 0) {
         alert('データがありません');
         return;
       }
 
-      let csvContent = '\uFEFF日時,金額\n'; // 文字化け防止のBOMコード付き
-      logs.forEach(item => {
-        csvContent += `"${item.date}",${item.amount}\n`;
+      let csvContent = '\uFEFF日時,金額,担当者\n';
+      currentLogs.forEach(item => {
+        csvContent += `"${item.date}",${item.amount},"${item.user || ''}"\n`;
       });
 
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = '金額記録.csv';
+      a.download = '共有金額記録.csv';
       a.click();
       URL.revokeObjectURL(url);
     }
 
-    // データの全削除
+    // クラウドデータの全削除
     function データ全削除() {
-      if (confirm('すべての記録を削除しますか？')) {
-        localStorage.removeItem('moneyLogs');
-        表示更新();
+      if (confirm('全員の共有記録をすべて削除しますか？\n※この操作は元に戻せません')) {
+        dbRef.remove();
       }
     }
   </script>
