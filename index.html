@@ -7,25 +7,25 @@
   <style>
     body { font-family: sans-serif; padding: 20px; max-width: 400px; margin: 0 auto; background-color: #f8f9fa; }
     h2 { text-align: center; color: #333; }
-
+    
     button {
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
     }
-    
+
     /* 担当者名入力 */
     .user-box { margin-bottom: 15px; }
     .user-box label { display: block; font-size: 13px; color: #666; margin-bottom: 4px; }
     .user-box input { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; }
 
-    /* ★追加：集計表示エリアのスタイル */
+    /* 集計表示エリア */
     .summary-box {
       display: flex;
       justify-content: space-around;
       background: #ffffff;
       padding: 12px 10px;
       border-radius: 10px;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
       border: 1px solid #e0e0e0;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
@@ -34,28 +34,32 @@
     .summary-value { font-size: 22px; font-weight: bold; color: #007bff; }
     .unit { font-size: 13px; font-weight: normal; color: #555; }
 
-    /* ★立体的な凹むボタンのアニメーション */
+    /* 立体的な凹むボタン */
     .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
     button.btn-input {
       padding: 18px; font-size: 22px; font-weight: bold;
       background: #007bff; color: white; border: none; border-radius: 12px;
       cursor: pointer;
-      /* ボタンの下に厚み（影）を作る */
       box-shadow: 0 5px 0 #0056b3;
       transition: all 0.05s ease;
+      
+      /* スマホ用の長押し・文字選択防止 */
       user-select: none;
       -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      
       position: relative;
     }
-    /* タップした瞬間に凹む処理 */
+
+    /* タップされた時（:active）に凹ませる */
     button.btn-input:active {
-      transform: translateY(5px); /* 5px下へ押し込む */
-      box-shadow: 0 0 0 #0056b3; /* 影を潰す */
+      transform: translateY(5px);
+      box-shadow: 0 0 0 #0056b3;
     }
 
     /* 操作ボタン */
     .action-group { display: flex; justify-content: space-between; margin-bottom: 15px; }
-    .btn-action { padding: 8px 12px; cursor: pointer; }
+    .btn-action { padding: 8px 12px; cursor: pointer; border-radius: 6px; border: 1px solid #ccc; background: #fff; }
 
     /* 履歴テーブル */
     table { width: 100%; border-collapse: collapse; background: #fff; }
@@ -63,7 +67,7 @@
     th { background: #f4f4f4; }
   </style>
 </head>
-<body>
+<body ontouchstart="">
 
   <h2>金額記録</h2>
 
