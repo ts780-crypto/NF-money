@@ -15,7 +15,7 @@
   --btn-bg: #ffffff;
   --btn-text: #0f172a;
   --btn-border: #64748b;        /* くっきりした枠線 */
-  --btn-shadow: #cbd5e1;        /* ボタンの立体感 */
+  --btn-shadow: #94a3b8;        /* 押す前の立体的な影 */
   --btn-active-bg: #e2e8f0;
 
   /* アクションボタン */
@@ -56,7 +56,7 @@
     --btn-bg: #334155;
     --btn-text: #ffffff;
     --btn-border: #64748b;
-    --btn-shadow: #020617;
+    --btn-shadow: #0f172a;       /* 暗い画面用の影 */
     --btn-active-bg: #475569;
 
     /* アクションボタン */
@@ -217,16 +217,36 @@ button {
 }
 .user-box input:focus { border-color: var(--primary); }
 
+/* 入力ボタン＆押し込み（へこむ）アニメーションの復元 */
 .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
-button.btn-input {
-  padding: 18px 10px; font-size: 24px; font-weight: 700;
-  background: var(--btn-bg); color: var(--btn-text);
-  border: 1.5px solid var(--btn-border); border-radius: 16px; cursor: pointer;
-  box-shadow: 0 5px 0 var(--btn-shadow); transition: all 0.06s ease;
-  user-select: none; -webkit-user-select: none;
+
+.btn-input {
+  padding: 18px 10px;
+  font-size: 24px;
+  font-weight: 700;
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  border: 1.5px solid var(--btn-border);
+  border-radius: 16px;
+  cursor: pointer;
+  box-shadow: 0 5px 0 var(--btn-shadow);
+  transition: transform 0.05s ease, box-shadow 0.05s ease, background-color 0.05s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  width: 100%;
 }
-button.btn-input .btn-unit { font-size: 16px; font-weight: 600; margin-left: 2px; }
-button.btn-input:active { transform: translateY(5px); box-shadow: 0 0 0 var(--btn-shadow); background-color: var(--btn-active-bg); }
+
+.btn-input .btn-unit { font-size: 16px; font-weight: 600; margin-left: 2px; }
+
+/* 押した時の「へこむ」スタイル */
+.btn-input:active {
+  transform: translateY(5px) !important;
+  box-shadow: 0 0 0 var(--btn-shadow) !important;
+  background-color: var(--btn-active-bg) !important;
+}
 
 .action-group { display: flex; gap: 8px; margin-bottom: 24px; }
 .btn-action {
