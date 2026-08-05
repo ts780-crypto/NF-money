@@ -7,6 +7,7 @@ const MAX_DISPLAY_COUNT = 10;
 // 表示モード ('limit': 直近10件, 'all': 全件) - localStorageから状態を復元
 let displayMode = localStorage.getItem('nf_viewer_display_mode') || 'limit';
 let remoteLogs = [];
+let eventSource = null; // リアルタイム通信オブジェクト
 
 window.onload = function() {
   // Service Worker 登録（オフライン対応）
@@ -19,22 +20,26 @@ window.onload = function() {
   updateToggleUI();
   renderData();
 
-  // 2. ネットワーク状態の監視と初期表示の設定
+  // 2. ネットワーク状態の監視イベント設定
   window.addEventListener('online', updateNetworkStatus);
   window.addEventListener('offline', updateNetworkStatus);
-  updateNetworkStatus();
 
   // 3. リアルタイム監視開始
   initRealtimeStream();
 };
 
-// --- ネットワーク状態の表示更新 ---
+// --- ネットワーク・同期状態の表示更新 ---
 function updateNetworkStatus() {
   const statusBadge = document.getElementById('netStatus');
   const statusText = document.getElementById('netStatusText');
   if (!statusBadge || !statusText) return;
 
-  if (navigator.onLine) {
+  // 判定ロジックの強化：
+  // ブラウザのオン/オフライン情報 ＆ FirebaseへのEventSourceが OPEN (readyState === 1) の時のみ「同期中」
+  const isSSEOpen = eventSource && (eventSource.readyState === EventSource.OPEN);
+  const isConnected = navigator.onLine && isSSEOpen;
+
+  if (isConnected) {
     statusBadge.className = "net-badge online";
     statusText.textContent = "リアルタイム同期中";
   } else {
@@ -121,9 +126,19 @@ function renderData() {
 }
 
 function initRealtimeStream() {
-  const eventSource = new EventSource(`${DB_URL}.json`);
+  if (eventSource) {
+    eventSource.close();
+  }
+
+  eventSource = new EventSource(`${DB_URL}.json`);
+
+  // 接続確立時
+  eventSource.onopen = () => {
+    updateNetworkStatus();
+  };
 
   eventSource.addEventListener('put', (e) => {
+    updateNetworkStatus();
     const res = JSON.parse(e.data);
     if (!res) return;
 
@@ -153,7 +168,9 @@ function initRealtimeStream() {
     renderData();
   });
 
+  // 通信切断・エラー発生時
   eventSource.onerror = (err) => {
     console.warn("リアルタイム接続切断。再接続を待機中...", err);
+    updateNetworkStatus();
   };
 }
