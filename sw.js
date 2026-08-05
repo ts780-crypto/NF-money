@@ -1,10 +1,13 @@
-const CACHE_NAME = 'nf-app-v1';
+const CACHE_NAME = 'nf-app-v2'; // バージョンを v2 に更新
 const ASSETS = [
   './',
   './index.html',
   './viewer.html',
-  'https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js',
-  'https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js'
+  './style.css',
+  './app.js',
+  './viewer.js',
+  './manifest.json',
+  './apple-touch-icon.png'
 ];
 
 // キャッシュの保存
