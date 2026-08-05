@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nf-app-v4'; // バージョンを v4 に更新
+const CACHE_NAME = 'nf-app-v6'; // バージョンを v6 に更新
 
 // キャッシュ対象ファイルリスト
 const ASSETS = [
