@@ -2,38 +2,28 @@
    1. カラー変数（テーマ設定）
    ========================================== */
 :root {
-  --bg-color: #faf6f0;
-  --card-bg: #ffffff;
-  --text-main: #292524;
-  --text-sub: #57534e;
-  --primary: #ea580c;
-  --link-color: #ea580c;
-  --border: #e7e5e4;
-  --input-bg: #fefcfb;
-
-  --btn-bg: #ffffff;
-  --btn-text: #c2410c;
-  --btn-border: #ffedd5;
-  --btn-shadow: #fdba74;
-  --btn-active-bg: #fff7ed;
-
-  --action-bg: #ffffff;
-  --action-text: #57534e;
-  --action-active: #f5f5f4;
-  --cancel-bg: #fffbeb;
-  --cancel-border: #fde68a;
-  --cancel-text: #d97706;
-  --delete-bg: #fef2f2;
-  --delete-border: #fecaca;
-  --delete-text: #dc2626;
-
-  --table-header-bg: #faf6f0;
-  --table-border: #f5f5f4;
-
-  --status-online-bg: #dcfce7;
-  --status-online-text: #15803d;
-  --status-offline-bg: #fef3c7;
-  --status-offline-text: #b45309;
+  /* ベースカラー（背景・文字） */
+  --bg-color: #f8fafc;           /* ほんのりグレーがかった落ち着いた背景 */
+  --card-bg: #ffffff;            /* カードの背景 */
+  --text-main: #1e293b;          /* 濃いチャコールグレー（純黒を回避） */
+  --text-sub: #64748b;           /* 控えめな補足文字 */
+  
+  /* メインカラー（落ち着いたブルーグレー） */
+  --primary: #334155;            /* 深みのあるダークスレート */
+  --primary-hover: #1e293b;      /* ホバー時 */
+  
+  /* ボタン・アクセント */
+  --btn-bg: #475569;             /* 入力ボタンのベース */
+  --btn-hover: #334155;
+  
+  /* ステータスカラー（彩度控えめ） */
+  --success: #059669;            /* 深いエメラルド（オンライン） */
+  --warning: #d97706;            /* アンバー（未送信） */
+  --danger: #9f1239;             /* バーガンディ（削除・オフライン） */
+  
+  /* 枠線・影 */
+  --border-color: #e2e8f0;       /* 主張しない淡い枠線 */
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06); /* ごく薄い影 */
 }
 
 /* ダークモード */
