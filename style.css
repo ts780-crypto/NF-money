@@ -1,417 +1,393 @@
-/* ==========================================================================
-   シック・モダン（ダークブルーグレー）- 安定・直書き版
-   ========================================================================== */
+/* ==========================================
+   1. カラー変数（テーマ設定）
+   ========================================== */
+:root {
+  --bg-color: #faf6f0;
+  --card-bg: #ffffff;
+  --text-main: #292524;
+  --text-sub: #57534e;
+  --primary: #ea580c;
+  --link-color: #ea580c;
+  --border: #e7e5e4;
+  --input-bg: #fefcfb;
 
-/* --- 全体リセット ＆ 基本設定 --- */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+  --btn-bg: #ffffff;
+  --btn-text: #c2410c;
+  --btn-border: #ffedd5;
+  --btn-shadow: #fdba74;
+  --btn-active-bg: #fff7ed;
+
+  --action-bg: #ffffff;
+  --action-text: #57534e;
+  --action-active: #f5f5f4;
+  --cancel-bg: #fffbeb;
+  --cancel-border: #fde68a;
+  --cancel-text: #d97706;
+  --delete-bg: #fef2f2;
+  --delete-border: #fecaca;
+  --delete-text: #dc2626;
+
+  --table-header-bg: #faf6f0;
+  --table-border: #f5f5f4;
+
+  --status-online-bg: #dcfce7;
+  --status-online-text: #15803d;
+  --status-offline-bg: #fef3c7;
+  --status-offline-text: #b45309;
 }
 
+/* ダークモード */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #1c1917;
+    --card-bg: #292524;
+    --text-main: #f5f5f4;
+    --text-sub: #a8a29e;
+    --primary: #f97316;
+    --link-color: #fb923c;
+    --border: #44403c;
+    --input-bg: #1c1917;
+
+    --btn-bg: #292524;
+    --btn-text: #fb923c;
+    --btn-border: #ea580c;
+    --btn-shadow: #9a3412;
+    --btn-active-bg: #431407;
+
+    --action-bg: #292524;
+    --action-text: #d6d3d1;
+    --action-active: #44403c;
+    --cancel-bg: #451a03;
+    --cancel-border: #78350f;
+    --cancel-text: #fbbf24;
+    --delete-bg: #450a0a;
+    --delete-border: #7f1d1d;
+    --delete-text: #f87171;
+
+    --table-header-bg: #1c1917;
+    --table-border: #44403c;
+
+    --status-online-bg: #064e3b;
+    --status-online-text: #4ade80;
+    --status-offline-bg: #78350f;
+    --status-offline-text: #fef08a;
+  }
+}
+
+/* ==========================================
+   2. ベーススタイル
+   ========================================== */
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  background-color: #f1f5f9; /* ライトモード背景 */
-  color: #0f172a;            /* 濃いスレート文字 */
-  line-height: 1.6;
-  letter-spacing: 0.02em;
-  -webkit-font-smoothing: antialiased;
-  padding-bottom: 40px;
-}
-
-.container {
-  max-width: 640px;
+  padding: 24px 16px;
+  max-width: 420px;
   margin: 0 auto;
-  padding: 20px 16px;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s, color 0.3s;
 }
 
-/* ヘッダー */
-header {
+button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  font-family: inherit;
+}
+
+/* ==========================================
+   3. ヘッダー＆ナビゲーション
+   ========================================== */
+.header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.header-bar h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+}
+.header-nav-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--link-color);
+  text-decoration: none;
+  padding: 6px 12px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  transition: opacity 0.2s, background-color 0.3s;
+  white-space: nowrap;
+}
+.header-nav-link:active {
+  opacity: 0.7;
+}
+
+/* ==========================================
+   4. ステータスバー
+   ========================================== */
+.status-bar, .status-sub-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+  font-size: 11px;
+  font-weight: 600;
 }
-
-h1 {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-/* ネットワークステータス */
-.net-badge {
+.net-badge, .status-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
+  padding: 4px 10px;
   border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
+  transition: all 0.3s;
 }
+.net-badge.online, .status-badge { background-color: var(--status-online-bg); color: var(--status-online-text); }
+.net-badge.offline { background-color: var(--status-offline-bg); color: var(--status-offline-text); }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background-color: currentColor; }
+.sync-info, .last-update { color: var(--text-sub); font-size: 12px; }
 
-.net-badge.online {
-  background-color: #e6f4f1;
-  color: #0f766e;
-  border: 1px solid #0f766e;
-}
+/* ==========================================
+   5. 集計カード（共通）
+   ========================================== */
+.summary-box { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.summary-grid { display: flex; flex-direction: column; gap: 16px; }
 
-.net-badge.offline {
-  background-color: #fbebe6;
-  color: #9a3412;
-  border: 1px solid #9a3412;
-}
-
-.net-badge::before {
-  content: "";
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-}
-
-.net-badge.online::before { background-color: #0f766e; }
-.net-badge.offline::before { background-color: #9a3412; }
-
-/* カード汎用 */
-.card {
-  background-color: #ffffff;
-  border: 1px solid #cbd5e1;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 16px;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
-}
-
-/* 売上・合計金額タイル（眩しさを抑えたダーク仕様） */
-.total-card {
-  background-color: #1e293b; /* ダークスレート */
-  border: 1px solid #475569;
+.summary-card {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
   border-radius: 16px;
-  padding: 20px;
+  padding: 16px 10px;
   text-align: center;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
-}
-
-.total-label {
-  font-size: 0.85rem;
-  color: #94a3b8;
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.total-amount {
-  font-size: 2.5rem;
-  font-weight: 800;
   color: #ffffff;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-}
-
-.total-amount .unit {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #94a3b8;
-  margin-left: 4px;
-}
-
-.total-sub {
-  font-size: 0.85rem;
-  color: #94a3b8;
-  margin-top: 6px;
-}
-
-/* 入力フォーム */
-.input-group {
+  box-shadow: 0 8px 16px -3px rgba(234, 88, 12, 0.3);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  justify-content: center;
+}
+.summary-grid .summary-card { padding: 24px 16px; border-radius: 20px; }
+
+.summary-card .summary-label, .summary-card .label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.88);
+  margin-bottom: 6px;
+}
+.summary-grid .summary-card .label { font-size: 14px; margin-bottom: 8px; letter-spacing: 0.05em; }
+
+.summary-card .summary-value, .summary-card .value {
+  font-size: 26px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+.summary-grid .summary-card .value { font-size: 42px; line-height: 1; }
+
+.summary-card .unit { font-size: 13px; font-weight: 600; opacity: 0.9; margin-left: 2px; }
+.summary-grid .summary-card .unit { font-size: 18px; margin-left: 4px; }
+
+/* ==========================================
+   6. 入力画面固有パーツ (index.html)
+   ========================================== */
+.user-box {
+  background: var(--card-bg);
+  padding: 14px 16px;
+  border-radius: 14px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border);
+}
+.user-box label { display: block; font-size: 11px; font-weight: 600; color: var(--text-sub); margin-bottom: 6px; }
+.user-box input {
+  width: 100%; padding: 8px 10px; box-sizing: border-box;
+  border: 1px solid var(--border); border-radius: 8px; font-size: 15px;
+  color: var(--text-main); background-color: var(--input-bg); outline: none;
+}
+.user-box input:focus { border-color: var(--primary); }
+
+.btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+button.btn-input {
+  padding: 18px 10px; font-size: 24px; font-weight: 700;
+  background: var(--btn-bg); color: var(--btn-text);
+  border: 1px solid var(--btn-border); border-radius: 16px; cursor: pointer;
+  box-shadow: 0 5px 0 var(--btn-shadow); transition: all 0.06s ease;
+  user-select: none; -webkit-user-select: none;
+}
+button.btn-input .btn-unit { font-size: 16px; font-weight: 600; margin-left: 2px; }
+button.btn-input:active { transform: translateY(5px); box-shadow: 0 0 0 var(--btn-shadow); background-color: var(--btn-active-bg); }
+
+.action-group { display: flex; gap: 8px; margin-bottom: 24px; }
+.btn-action {
+  flex: 1; padding: 10px 4px; cursor: pointer; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--action-bg);
+  font-size: 13px; font-weight: 600; color: var(--action-text);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+.btn-action:active { background-color: var(--action-active); }
+.btn-action.cancel { color: var(--cancel-text); border-color: var(--cancel-border); background-color: var(--cancel-bg); }
+.btn-action.delete { color: var(--delete-text); border-color: var(--delete-border); background-color: var(--delete-bg); }
+
+h3 { font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 10px; }
+.table-card { background: var(--card-bg); border-radius: 14px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 12px 10px; text-align: center; font-size: 13px; }
+th { background: var(--table-header-bg); color: var(--text-sub); font-weight: 600; border-bottom: 1px solid var(--border); }
+td { border-bottom: 1px solid var(--table-border); color: var(--text-main); }
+tr:last-child td { border-bottom: none; }
+
+.pending-tag {
+  display: inline-block; font-size: 10px; padding: 2px 6px; border-radius: 4px;
+  background-color: var(--cancel-bg); color: var(--cancel-text);
+  border: 1px solid var(--cancel-border); margin-left: 4px;
+}
+
+/* ==========================================
+   7. 金額設定パネル（カスタムボタン用）
+   ========================================== */
+.btn-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.btn-header-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-sub);
+}
+.btn-settings-toggle {
+  background: none;
+  border: none;
+  color: var(--link-color);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.btn-settings-toggle:active {
+  background-color: var(--btn-active-bg);
+}
+
+.settings-panel {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
   margin-bottom: 16px;
 }
-
-.input-group label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #475569;
+.settings-desc {
+  font-size: 11px;
+  color: var(--text-sub);
+  margin: 0 0 10px 0;
 }
-
-input[type="text"], input[type="number"], input[type="password"] {
-  width: 100%;
-  padding: 12px 14px;
-  border: 1.5px solid #cbd5e1;
-  border-radius: 8px;
-  background-color: #ffffff;
-  color: #0f172a;
-  font-size: 1rem;
-  outline: none;
-  transition: all 0.15s ease-in-out;
-}
-
-input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:focus {
-  border-color: #475569;
-  box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.2);
-}
-
-/* 金額入力ボタン（くっきりした境界線と高視認性） */
-.btn-grid {
+.settings-inputs {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
-  margin-bottom: 20px;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
 }
-
-.btn-input {
-  background-color: #ffffff;
-  color: #0f172a;
-  border: 2px solid #64748b; /* くっきりした枠線 */
-  border-radius: 12px;
-  padding: 20px 12px;
-  font-size: 1.6rem;
-  font-weight: 800;
-  cursor: pointer;
-  transition: all 0.15s ease-in-out;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 4px;
-}
-
-.btn-input:hover {
-  background-color: #e2e8f0;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
-}
-
-.btn-input:active {
-  transform: translateY(1px);
-}
-
-.btn-unit {
-  font-size: 0.95rem;
-  font-weight: 600;
-  opacity: 0.85;
-}
-
-/* アクションボタン */
-.action-grid {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.btn-action {
-  flex: 1;
-  background-color: #e2e8f0;
-  color: #1e293b;
-  border: 1.5px solid #64748b;
-  border-radius: 8px;
-  padding: 12px 14px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.15s ease-in-out;
-  text-align: center;
-}
-
-.btn-action:hover {
-  background-color: #cbd5e1;
-}
-
-.btn-action.danger {
-  color: #9f1239;
-  border-color: #9f1239;
-}
-
-/* データテーブル */
-.table-container {
-  overflow-x: auto;
-  border-radius: 12px;
-  border: 1.5px solid #cbd5e1;
-  background-color: #ffffff;
-}
-
-table {
+.settings-inputs input {
   width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-  font-size: 0.85rem;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: var(--input-bg);
+  color: var(--text-main);
+  outline: none;
 }
-
-th {
-  background-color: #f1f5f9;
-  color: #475569;
-  font-weight: 700;
-  padding: 12px 16px;
-  border-bottom: 1.5px solid #cbd5e1;
+.settings-inputs input:focus {
+  border-color: var(--primary);
 }
-
-td {
-  padding: 12px 16px;
-  border-bottom: 1px solid #cbd5e1;
-  color: #0f172a;
+/* ==========================================
+   8. 集計モニター固有パーツ (viewer.html)
+   ========================================== */
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
 }
-
-tr:last-child td {
-  border-bottom: none;
+.history-header h3 {
+  margin: 0;
 }
-
-/* タグ・トグルボタン */
-.pending-tag {
-  display: inline-block;
-  margin-left: 6px;
-  padding: 2px 6px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: #b45309;
-  background-color: #fef3c7;
-  border-radius: 4px;
-}
-
 .toggle-group {
   display: flex;
-  background-color: #e2e8f0;
-  padding: 4px;
+  gap: 2px;
+  background: var(--card-bg);
+  padding: 3px;
   border-radius: 8px;
-  border: 1.5px solid #cbd5e1;
-  margin-bottom: 16px;
+  border: 1px solid var(--border);
 }
-
-.toggle-btn {
-  flex: 1;
-  border: none;
-  background: none;
-  padding: 8px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #475569;
+.btn-toggle {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
   border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-sub);
   cursor: pointer;
-  transition: all 0.15s ease-in-out;
+  transition: all 0.2s ease;
 }
-
-.toggle-btn.active {
-  background-color: #ffffff;
-  color: #0f172a;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+.btn-toggle.active {
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
-
-/* 認証モーダル */
+/* ==========================================
+   9. パスワード認証画面 (input.html)
+   ========================================== */
 .auth-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(4px);
+  width: 100%;
+  height: 100%;
+  background: var(--bg-color);
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
+  align-items: center;
   z-index: 9999;
+  padding: 24px;
+  box-sizing: border-box;
 }
 
-.auth-modal {
-  background-color: #ffffff;
-  border: 1px solid #cbd5e1;
-  padding: 32px 24px;
+.auth-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
   border-radius: 16px;
-  width: 90%;
-  max-width: 360px;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+  padding: 24px;
+  width: 100%;
+  max-width: 320px;
   text-align: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
-.auth-modal h2 {
-  font-size: 1.1rem;
-  margin-bottom: 8px;
-  color: #0f172a;
+.auth-card h3 {
+  margin: 0 0 8px 0;
 }
 
-.auth-modal p {
-  font-size: 0.85rem;
-  color: #475569;
-  margin-bottom: 20px;
+.auth-card input {
+  width: 100%;
+  padding: 12px;
+  margin: 16px 0 12px 0;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 16px;
+  text-align: center;
+  background: var(--input-bg);
+  color: var(--text-main);
+  outline: none;
 }
 
-.auth-error {
-  color: #9f1239;
-  font-size: 0.8rem;
-  margin-top: 8px;
-  display: none;
-}
-
-
-/* ==========================================================================
-   ダークモード自動対応 (OSの設定が「ダーク」の場合に自動適用)
-   ========================================================================== */
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: #0f172a;
-    color: #f8fafc;
-  }
-
-  h1, td, .auth-modal h2 {
-    color: #f8fafc;
-  }
-
-  .card, .table-container, .auth-modal {
-    background-color: #1e293b;
-    border-color: #334155;
-  }
-
-  .total-card {
-    background-color: #020617;
-    border-color: #334155;
-  }
-
-  input[type="text"], input[type="number"], input[type="password"] {
-    background-color: #1e293b;
-    color: #f8fafc;
-    border-color: #334155;
-  }
-
-  .btn-input {
-    background-color: #334155;
-    color: #ffffff;
-    border-color: #64748b;
-  }
-
-  .btn-input:hover {
-    background-color: #475569;
-  }
-
-  .btn-action, .toggle-group {
-    background-color: #334155;
-    color: #f8fafc;
-    border-color: #475569;
-  }
-
-  .btn-action:hover {
-    background-color: #475569;
-  }
-
-  th {
-    background-color: #0f172a;
-    color: #cbd5e1;
-    border-bottom-color: #334155;
-  }
-
-  td {
-    border-bottom-color: #334155;
-  }
-
-  .toggle-btn {
-    color: #cbd5e1;
-  }
-
-  .toggle-btn.active {
-    background-color: #1e293b;
-    color: #f8fafc;
-  }
-
-  .input-group label, .auth-modal p {
-    color: #cbd5e1;
-  }
+.auth-card input:focus {
+  border-color: var(--primary);
 }
