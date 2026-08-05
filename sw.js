@@ -1,6 +1,6 @@
-const CACHE_NAME = 'nf-app-v3'; // バージョンを v3 に更新
+const CACHE_NAME = 'nf-app-v4'; // バージョンを v4 に更新
 
-// キャッシュ対象ファイルリスト（input.html に修正）
+// キャッシュ対象ファイルリスト
 const ASSETS = [
   './',
   './index.html',
@@ -43,9 +43,9 @@ self.addEventListener('fetch', (event) => {
   if (!event.request.url.startsWith('http')) return;
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
+    // ignoreSearch: true を指定することで、?v=1 などのパラメーターが付いていても style.css を返せるように変更
+    caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
       if (cachedResponse) {
-        // キャッシュが存在すればそれを返す
         return cachedResponse;
       }
       // キャッシュがなければネットワークから取得
