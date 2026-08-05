@@ -3,6 +3,7 @@ const DB_URL = "https://nf-reception-default-rtdb.asia-southeast1.firebasedataba
 
 let remoteLogs = [];   // Firebaseから同期されたデータ
 let pendingLogs = [];  // ローカル（localStorage）にある未送信データ
+let presetAmounts = [250, 200, 150, 100]; // 金額ボタンの初期値
 
 window.onload = function() {
   // Service Worker 登録
@@ -14,11 +15,15 @@ window.onload = function() {
   const savedName = localStorage.getItem('savedUserName');
   if (savedName) document.getElementById('userName').value = savedName;
 
-  // 1. ローカルの未送信データ ＆ キャッシュされたリモートデータを即座に読み込み
+  // 1. 金額プリセットの読み込みとボタン描画
+  loadPresets();
+  renderButtons();
+
+  // 2. ローカルの未送信データ ＆ キャッシュされたリモートデータを即座に読み込み
   loadPendingLogs();
   loadCachedRemoteLogs();
 
-  // 2. サーバーからデータが届く前に、前回のデータで即座に初回描画（0表示を回避！）
+  // 3. サーバーからの受信を待たずに初回描画（0表示チラつき回避）
   renderData();
 
   // ネットワーク状態の監視
@@ -44,6 +49,59 @@ function loadCachedRemoteLogs() {
 
 function saveCachedRemoteLogs() {
   localStorage.setItem('nf_cached_remote_logs', JSON.stringify(remoteLogs));
+}
+
+// --- 金額プリセット（ボタンカスタマイズ）機能 ---
+function loadPresets() {
+  const saved = localStorage.getItem('nf_preset_amounts');
+  if (saved) {
+    try {
+      presetAmounts = JSON.parse(saved);
+    } catch (e) {
+      console.error("プリセット読み込みエラー", e);
+    }
+  }
+}
+
+function renderButtons() {
+  const grid = document.getElementById('btnGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  presetAmounts.forEach(amount => {
+    const btn = document.createElement('button');
+    btn.className = 'btn-input';
+    btn.innerHTML = `${amount}<span class="btn-unit">円</span>`;
+    btn.onclick = () => 記録(amount);
+    grid.appendChild(btn);
+  });
+}
+
+function toggleSettings() {
+  const panel = document.getElementById('settingsPanel');
+  if (!panel) return;
+  const isHidden = panel.style.display === 'none';
+  panel.style.display = isHidden ? 'block' : 'none';
+
+  if (isHidden) {
+    document.getElementById('preset1').value = presetAmounts[0] || '';
+    document.getElementById('preset2').value = presetAmounts[1] || '';
+    document.getElementById('preset3').value = presetAmounts[2] || '';
+    document.getElementById('preset4').value = presetAmounts[3] || '';
+  }
+}
+
+function savePresets() {
+  const p1 = Number(document.getElementById('preset1').value) || 0;
+  const p2 = Number(document.getElementById('preset2').value) || 0;
+  const p3 = Number(document.getElementById('preset3').value) || 0;
+  const p4 = Number(document.getElementById('preset4').value) || 0;
+
+  presetAmounts = [p1, p2, p3, p4];
+  localStorage.setItem('nf_preset_amounts', JSON.stringify(presetAmounts));
+
+  renderButtons();
+  toggleSettings();
 }
 
 // --- REST API リアルタイム監視 (EventSource) ---
