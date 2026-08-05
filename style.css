@@ -244,3 +244,62 @@ tr:last-child td { border-bottom: none; }
   background-color: var(--cancel-bg); color: var(--cancel-text);
   border: 1px solid var(--cancel-border); margin-left: 4px;
 }
+/* ==========================================
+   金額設定パネル（カスタムボタン用）
+   ========================================== */
+.btn-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.btn-header-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-sub);
+}
+.btn-settings-toggle {
+  background: none;
+  border: none;
+  color: var(--link-color);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.btn-settings-toggle:active {
+  background-color: var(--btn-active-bg);
+}
+
+.settings-panel {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+.settings-desc {
+  font-size: 11px;
+  color: var(--text-sub);
+  margin: 0 0 10px 0;
+}
+.settings-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.settings-inputs input {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: var(--input-bg);
+  color: var(--text-main);
+  outline: none;
+}
+.settings-inputs input:focus {
+  border-color: var(--primary);
+}
