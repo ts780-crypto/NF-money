@@ -1,6 +1,9 @@
 // Firebase Realtime Database REST API エンドポイント
 const DB_URL = "https://nf-reception-default-rtdb.asia-southeast1.firebasedatabase.app/moneyLogs";
 
+// ★ 入力画面のパスワード設定（お好みの文字列に変更してください）
+const APP_PASSWORD = "nf2026";
+
 // 定数・変数
 const DEFAULT_PRESETS = [250, 200, 150, 100]; // デフォルト金額
 let remoteLogs = [];   // Firebaseから同期されたデータ
@@ -8,6 +11,9 @@ let pendingLogs = [];  // ローカル（localStorage）にある未送信デー
 let presetAmounts = [...DEFAULT_PRESETS]; // 金額ボタンの設定値
 
 window.onload = function() {
+  // 0. パスワード認証のチェック
+  checkAuthStatus();
+  
   // Service Worker 登録
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Error:', err));
@@ -36,6 +42,34 @@ window.onload = function() {
   // REST API (Server-Sent Events) によるリアルタイム監視開始
   initRealtimeStream();
 };
+
+// --- 認証機能 ---
+function checkAuthStatus() {
+  const overlay = document.getElementById('authOverlay');
+  if (!overlay) return;
+
+  // すでにセッション中に認証済みなら画面を隠す
+  if (sessionStorage.getItem('nf_authenticated') === 'true') {
+    overlay.style.display = 'none';
+  } else {
+    overlay.style.display = 'flex';
+  }
+}
+
+function authenticate(event) {
+  if (event) event.preventDefault(); // フォーム送信によるリロードを防止
+
+  const input = document.getElementById('passInput').value;
+  const errorMsg = document.getElementById('authError');
+
+  if (input === APP_PASSWORD) {
+    sessionStorage.setItem('nf_authenticated', 'true');
+    document.getElementById('authOverlay').style.display = 'none';
+    if (errorMsg) errorMsg.style.display = 'none';
+  } else {
+    if (errorMsg) errorMsg.style.display = 'block';
+  }
+}
 
 // --- ローカルキャッシュ操作 ---
 function loadCachedRemoteLogs() {
