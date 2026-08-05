@@ -9,6 +9,11 @@ let displayMode = localStorage.getItem('nf_viewer_display_mode') || 'limit';
 let remoteLogs = [];
 
 window.onload = function() {
+  // ★ Service Worker 登録（オフライン対応を有効化）
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Error:', err));
+  }
+
   // 1. キャッシュから即座に読み込んで表示
   loadCachedRemoteLogs();
   updateToggleUI();
