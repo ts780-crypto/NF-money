@@ -63,38 +63,7 @@
     </div>
   </main>
 
-  <!-- Firebase SDK の読み込み -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
-
-  <!-- ★共通Firebase設定の読み込み -->
-  <script src="firebase-config.js"></script>
-  
-  <script>
-    // データベースの更新を常時監視
-    dbRef.on('value', (snapshot) => {
-      const data = snapshot.val();
-      let count = 0;
-      let sum = 0;
-
-      if (data) {
-        const logs = Object.values(data);
-        count = logs.length;
-        sum = logs.reduce((total, item) => total + Number(item.amount || 0), 0);
-      }
-
-      // 数値表示の更新
-      document.getElementById('totalCount').innerHTML = `${count} <span class="unit">件</span>`;
-      document.getElementById('totalAmount').innerHTML = `${sum.toLocaleString()} <span class="unit">円</span>`;
-
-      // 最終受信日時の更新
-      const now = new Date();
-      const timeStr = String(now.getHours()).padStart(2, '0') + ':' +
-                      String(now.getMinutes()).padStart(2, '0') + ':' +
-                      String(now.getSeconds()).padStart(2, '0');
-      document.getElementById('lastUpdate').textContent = `最終更新: ${timeStr}`;
-    });
-  </script>
+  <script src="viewer.js"></script>
 
 </body>
 </html>
