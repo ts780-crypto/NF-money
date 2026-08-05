@@ -244,8 +244,9 @@ tr:last-child td { border-bottom: none; }
   background-color: var(--cancel-bg); color: var(--cancel-text);
   border: 1px solid var(--cancel-border); margin-left: 4px;
 }
+
 /* ==========================================
-   金額設定パネル（カスタムボタン用）
+   7. 金額設定パネル（カスタムボタン用）
    ========================================== */
 .btn-header {
   display: flex;
