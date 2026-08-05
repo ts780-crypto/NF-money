@@ -1,48 +1,99 @@
 /* ==========================================================================
-   シック・モダン（ダークブルーグレー系）テーマ
+   シック・モダン（ダークブルーグレー系）- ダークモード完全対応版
    ========================================================================== */
 
+/* --- 1. ライトモード（標準設定） --- */
 :root {
-  /* ベースカラー（背景・テキスト） */
-  --bg-base: #f8fafc;            /* 全体背景: 淡いブルーグレー */
-  --card-bg: #ffffff;            /* カード背景: 純白 */
-  --text-main: #0f172a;          /* メインテキスト: 深いダークスレート */
-  --text-muted: #64748b;         /* 補足テキスト: ミディアムスレート */
-  --text-light: #94a3b8;         /* 控えめな注釈 */
+  /* 全体背景とカード */
+  --bg-base: #f1f5f9;            /* 淡いブルーグレー */
+  --card-bg: #ffffff;            /* カード背景 */
   
-  /* メイン＆ボタンカラー */
-  --primary: #1e293b;            /* 主要ブランド色: ダークスレート */
-  --primary-hover: #334155;      /* ホバー時 */
-  --btn-preset-bg: #334155;      /* 金額入力ボタン */
-  --btn-preset-hover: #1e293b;
-  --btn-preset-text: #ffffff;
+  /* テキスト */
+  --text-main: #0f172a;          /* メイン文字（濃いスレート） */
+  --text-muted: #475569;         /* サブ文字 */
+  --text-light: #64748b;
   
-  /* サブアクションボタン */
-  --btn-sub-bg: #f1f5f9;
-  --btn-sub-hover: #e2e8f0;
-  --btn-sub-text: #334155;
+  /* 売上・合計金額タイル（眩しさを抑えたダーク仕様） */
+  --total-card-bg: #1e293b;      /* 深みのあるダークスレート */
+  --total-card-text: #ffffff;    /* 鮮明な白文字 */
+  --total-card-sub: #94a3b8;     /* サブ文字 */
 
-  /* ステータス表示（彩度を落とした上品なトーン） */
-  --status-online-text: #0f766e; /* シックなティール */
-  --status-online-bg: #f0fdf4;
-  --status-offline-text: #9a3412;/* テラコッタ */
-  --status-offline-bg: #fff7ed;
-  --status-danger: #9f1239;     /* ボルドー・ワインレッド */
+  /* 金額入力ボタン (視認性と境界線を強調) */
+  --btn-preset-bg: #ffffff;      /* ボタン背景 */
+  --btn-preset-text: #0f172a;    /* 文字色（高コントラスト） */
+  --btn-preset-border: #94a3b8;  /* ボタンの明確な境目 */
+  --btn-preset-hover: #e2e8f0;   /* ホバー時 */
+
+  /* サブアクションボタン */
+  --btn-sub-bg: #e2e8f0;
+  --btn-sub-hover: #cbd5e1;
+  --btn-sub-text: #1e293b;
+
+  /* ステータス表示 */
+  --status-online-text: #0f766e;
+  --status-online-bg: #e6f4f1;
+  --status-offline-text: #9a3412;
+  --status-offline-bg: #fbebe6;
+  --status-danger: #9f1239;
 
   /* 枠線と影 */
-  --border-color: #e2e8f0;       /* 境界線: ライトスレート */
-  --border-focus: #64748b;       /* フォーカス時 */
-  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.03);
-  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.05);
+  --border-color: #cbd5e1;       /* テーブル等の枠線 */
+  --border-btn: #64748b;         /* ボタン境界線 */
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.12);
 
-  /* 角丸とトランジション */
+  /* 角丸・アニメーション */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
-  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition: all 0.15s ease-in-out;
 }
 
-/* Base Reset */
+/* --- 2. ダークモード自動適応 (OS/ブラウザ設定) --- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* 全体背景とカード */
+    --bg-base: #0f172a;          /* 落ち着いたダークスレート */
+    --card-bg: #1e293b;          /* カード背景 */
+    
+    /* テキスト */
+    --text-main: #f8fafc;        /* メイン文字 */
+    --text-muted: #cbd5e1;       /* サブ文字 */
+    --text-light: #94a3b8;
+    
+    /* 売上・合計金額タイル */
+    --total-card-bg: #020617;    /* さらに深いダークカラー */
+    --total-card-text: #f8fafc;
+    --total-card-sub: #94a3b8;
+
+    /* 金額入力ボタン */
+    --btn-preset-bg: #334155;    /* 視認性の高いスレートグレー */
+    --btn-preset-text: #ffffff;  /* くっきりした白文字 */
+    --btn-preset-border: #64748b;/* 境界線をくっきり */
+    --btn-preset-hover: #475569;
+
+    /* サブアクションボタン */
+    --btn-sub-bg: #334155;
+    --btn-sub-hover: #475569;
+    --btn-sub-text: #f8fafc;
+
+    /* ステータス表示 */
+    --status-online-text: #2dd4bf;
+    --status-online-bg: rgba(45, 212, 191, 0.1);
+    --status-offline-text: #fb923c;
+    --status-offline-bg: rgba(251, 146, 60, 0.1);
+    --status-danger: #f43f5e;
+
+    /* 枠線と影 */
+    --border-color: #334155;
+    --border-btn: #64748b;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* --- 3. コンポーネントスタイル --- */
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -62,22 +113,21 @@ body {
 .container {
   max-width: 640px;
   margin: 0 auto;
-  padding: 24px 16px;
+  padding: 20px 16px;
 }
 
-/* Header & Status Bar */
+/* ヘッダー＆ネットワークステータス */
 header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 h1 {
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--text-main);
-  letter-spacing: 0.04em;
 }
 
 .net-badge {
@@ -88,19 +138,18 @@ h1 {
   border-radius: 20px;
   font-size: 0.8rem;
   font-weight: 600;
-  transition: var(--transition);
 }
 
 .net-badge.online {
   background-color: var(--status-online-bg);
   color: var(--status-online-text);
-  border: 1px solid rgba(15, 118, 110, 0.2);
+  border: 1px solid var(--status-online-text);
 }
 
 .net-badge.offline {
   background-color: var(--status-offline-bg);
   color: var(--status-offline-text);
-  border: 1px solid rgba(154, 52, 18, 0.2);
+  border: 1px solid var(--status-offline-text);
 }
 
 .net-badge::before {
@@ -114,22 +163,22 @@ h1 {
 .net-badge.online::before { background-color: var(--status-online-text); }
 .net-badge.offline::before { background-color: var(--status-offline-text); }
 
-/* Card Containers */
+/* カード汎用 */
 .card {
   background-color: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   padding: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   box-shadow: var(--shadow-sm);
 }
 
-/* Total Amount Display */
+/* 合計金額タイル（眩しさを抑えたハイコントラスト仕様） */
 .total-card {
-  background-color: var(--card-bg);
-  border: 1px solid var(--border-color);
+  background-color: var(--total-card-bg);
+  border: 1px solid var(--border-btn);
   border-radius: var(--radius-lg);
-  padding: 24px;
+  padding: 20px;
   text-align: center;
   margin-bottom: 20px;
   box-shadow: var(--shadow-md);
@@ -137,32 +186,33 @@ h1 {
 
 .total-label {
   font-size: 0.85rem;
-  color: var(--text-muted);
-  font-weight: 500;
+  color: var(--total-card-sub);
+  font-weight: 600;
   margin-bottom: 4px;
 }
 
 .total-amount {
-  font-size: 2.25rem;
+  font-size: 2.5rem;
   font-weight: 800;
-  color: var(--text-main);
-  line-height: 1.2;
+  color: var(--total-card-text);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
 .total-amount .unit {
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
-  color: var(--text-muted);
-  margin-left: 2px;
+  color: var(--total-card-sub);
+  margin-left: 4px;
 }
 
 .total-sub {
   font-size: 0.85rem;
-  color: var(--text-muted);
-  margin-top: 8px;
+  color: var(--total-card-sub);
+  margin-top: 6px;
 }
 
-/* User Input Field */
+/* 入力フォーム */
 .input-group {
   display: flex;
   flex-direction: column;
@@ -178,38 +228,37 @@ h1 {
 
 input[type="text"], input[type="number"], input[type="password"] {
   width: 100%;
-  padding: 10px 14px;
-  border: 1px solid var(--border-color);
+  padding: 12px 14px;
+  border: 1.5px solid var(--border-color);
   border-radius: var(--radius-sm);
-  background-color: #fafafa;
+  background-color: var(--card-bg);
   color: var(--text-main);
-  font-size: 0.95rem;
+  font-size: 1rem;
   outline: none;
   transition: var(--transition);
 }
 
 input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:focus {
-  background-color: #ffffff;
-  border-color: var(--border-focus);
-  box-shadow: 0 0 0 3px rgba(71, 85, 105, 0.1);
+  border-color: var(--border-btn);
+  box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.2);
 }
 
-/* Amount Input Buttons Grid */
+/* 金額入力ボタン（くっきりした境界線と高視認性） */
 .btn-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 14px;
   margin-bottom: 20px;
 }
 
 .btn-input {
   background-color: var(--btn-preset-bg);
   color: var(--btn-preset-text);
-  border: none;
+  border: 2px solid var(--btn-preset-border); /* 境界線を2pxで太く強調 */
   border-radius: var(--radius-md);
-  padding: 18px 12px;
-  font-size: 1.5rem;
-  font-weight: 700;
+  padding: 20px 12px;
+  font-size: 1.6rem;
+  font-weight: 800;
   cursor: pointer;
   transition: var(--transition);
   box-shadow: var(--shadow-sm);
@@ -221,7 +270,7 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:foc
 
 .btn-input:hover {
   background-color: var(--btn-preset-hover);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
 
@@ -230,12 +279,12 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:foc
 }
 
 .btn-unit {
-  font-size: 0.9rem;
-  font-weight: 500;
-  opacity: 0.8;
+  font-size: 0.95rem;
+  font-weight: 600;
+  opacity: 0.85;
 }
 
-/* Action Control Buttons */
+/* サブ操作ボタン */
 .action-grid {
   display: flex;
   gap: 10px;
@@ -246,11 +295,11 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:foc
   flex: 1;
   background-color: var(--btn-sub-bg);
   color: var(--btn-sub-text);
-  border: 1px solid var(--border-color);
+  border: 1.5px solid var(--border-btn);
   border-radius: var(--radius-sm);
-  padding: 10px 14px;
+  padding: 12px 14px;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: var(--transition);
   text-align: center;
@@ -262,19 +311,14 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:foc
 
 .btn-action.danger {
   color: var(--status-danger);
-  border-color: rgba(159, 18, 57, 0.2);
-  background-color: #fff5f5;
+  border-color: var(--status-danger);
 }
 
-.btn-action.danger:hover {
-  background-color: #ffe4e6;
-}
-
-/* Data Table */
+/* データテーブル */
 .table-container {
   overflow-x: auto;
   border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
+  border: 1.5px solid var(--border-color);
   background-color: var(--card-bg);
 }
 
@@ -288,9 +332,9 @@ table {
 th {
   background-color: var(--bg-base);
   color: var(--text-muted);
-  font-weight: 600;
+  font-weight: 700;
   padding: 12px 16px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1.5px solid var(--border-color);
 }
 
 td {
@@ -303,29 +347,24 @@ tr:last-child td {
   border-bottom: none;
 }
 
-tr:hover td {
-  background-color: #f1f5f9;
-}
-
-/* Tags & Badges */
+/* タグ・トウグル */
 .pending-tag {
   display: inline-block;
   margin-left: 6px;
   padding: 2px 6px;
   font-size: 0.7rem;
-  font-weight: 600;
+  font-weight: 700;
   color: #b45309;
   background-color: #fef3c7;
   border-radius: 4px;
 }
 
-/* Display Mode Toggle (viewer.js) */
 .toggle-group {
   display: flex;
   background-color: var(--btn-sub-bg);
   padding: 4px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border-color);
+  border: 1.5px solid var(--border-color);
   margin-bottom: 16px;
 }
 
@@ -334,8 +373,8 @@ tr:hover td {
   border: none;
   background: none;
   padding: 8px;
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 0.85rem;
+  font-weight: 700;
   color: var(--text-muted);
   border-radius: 6px;
   cursor: pointer;
@@ -348,14 +387,14 @@ tr:hover td {
   box-shadow: var(--shadow-sm);
 }
 
-/* Auth Overlay / Modal */
+/* 認証オーバーレイ */
 .auth-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(15, 23, 42, 0.6);
+  background-color: rgba(15, 23, 42, 0.75);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -365,6 +404,7 @@ tr:hover td {
 
 .auth-modal {
   background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
   padding: 32px 24px;
   border-radius: var(--radius-lg);
   width: 90%;
