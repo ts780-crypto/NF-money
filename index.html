@@ -5,26 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>NF受付 記録システム</title>
   <style>
-    /* ライトモード（デフォルト）のカラー変数 */
+    /* 暖色系カラー変数（ライトモード） */
     :root {
-      --bg-color: #f3f4f6;
+      --bg-color: #faf6f0;
       --card-bg: #ffffff;
-      --text-main: #111827;
-      --text-sub: #4b5563;
-      --primary: #2563eb;
-      --link-color: #2563eb;
-      --border: #e5e7eb;
-      --input-bg: #f9fafb;
+      --text-main: #292524;
+      --text-sub: #57534e;
+      --primary: #ea580c;
+      --link-color: #ea580c;
+      --border: #e7e5e4;
+      --input-bg: #fefcfb;
       
       --btn-bg: #ffffff;
-      --btn-text: #1d4ed8;
-      --btn-border: #dbeafe;
-      --btn-shadow: #93c5fd;
-      --btn-active-bg: #eff6ff;
+      --btn-text: #c2410c;
+      --btn-border: #ffedd5;
+      --btn-shadow: #fdba74;
+      --btn-active-bg: #fff7ed;
 
       --action-bg: #ffffff;
-      --action-text: #4b5563;
-      --action-active: #f3f4f6;
+      --action-text: #57534e;
+      --action-active: #f5f5f4;
       --cancel-bg: #fffbeb;
       --cancel-border: #fde68a;
       --cancel-text: #d97706;
@@ -32,31 +32,31 @@
       --delete-border: #fecaca;
       --delete-text: #dc2626;
 
-      --table-header-bg: #f9fafb;
-      --table-border: #f3f4f6;
+      --table-header-bg: #faf6f0;
+      --table-border: #f5f5f4;
     }
 
-    /* 端末設定がダークモードの時に自動適用されるカラー変数 */
+    /* 暖色系カラー変数（ダークモード） */
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg-color: #111827;
-        --card-bg: #1f2937;
-        --text-main: #f9fafb;
-        --text-sub: #9ca3af;
-        --primary: #3b82f6;
-        --link-color: #60a5fa;
-        --border: #374151;
-        --input-bg: #111827;
+        --bg-color: #1c1917;
+        --card-bg: #292524;
+        --text-main: #f5f5f4;
+        --text-sub: #a8a29e;
+        --primary: #f97316;
+        --link-color: #fb923c;
+        --border: #44403c;
+        --input-bg: #1c1917;
         
-        --btn-bg: #1e293b;
-        --btn-text: #60a5fa;
-        --btn-border: #3b82f6;
-        --btn-shadow: #1e40af;
-        --btn-active-bg: #1e3a8a;
+        --btn-bg: #292524;
+        --btn-text: #fb923c;
+        --btn-border: #ea580c;
+        --btn-shadow: #9a3412;
+        --btn-active-bg: #431407;
 
-        --action-bg: #1f2937;
-        --action-text: #d1d5db;
-        --action-active: #374151;
+        --action-bg: #292524;
+        --action-text: #d6d3d1;
+        --action-active: #44403c;
         --cancel-bg: #451a03;
         --cancel-border: #78350f;
         --cancel-text: #fbbf24;
@@ -64,8 +64,8 @@
         --delete-border: #7f1d1d;
         --delete-text: #f87171;
 
-        --table-header-bg: #111827;
-        --table-border: #374151;
+        --table-header-bg: #1c1917;
+        --table-border: #44403c;
       }
     }
 
@@ -158,12 +158,12 @@
       margin-bottom: 20px;
     }
     .summary-card {
-      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
       border-radius: 16px;
       padding: 16px 10px;
       text-align: center;
       color: #ffffff;
-      box-shadow: 0 8px 16px -3px rgba(37, 99, 235, 0.3);
+      box-shadow: 0 8px 16px -3px rgba(234, 88, 12, 0.3);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -171,7 +171,7 @@
     .summary-card .summary-label {
       font-size: 12px;
       font-weight: 600;
-      color: rgba(255, 255, 255, 0.85);
+      color: rgba(255, 255, 255, 0.88);
       margin-bottom: 6px;
       letter-spacing: 0.03em;
     }
@@ -207,7 +207,6 @@
       -webkit-touch-callout: none;
       position: relative;
     }
-    /* ★ボタン内の「円」用スタイル */
     button.btn-input .btn-unit {
       font-size: 16px;
       font-weight: 600;
@@ -293,7 +292,7 @@
     </div>
   </div>
 
-  <!-- ★金額ボタン（「円」表記を追加） -->
+  <!-- 金額ボタン -->
   <div class="btn-grid">
     <button class="btn-input" onclick="記録(250)">250<span class="btn-unit">円</span></button>
     <button class="btn-input" onclick="記録(200)">200<span class="btn-unit">円</span></button>
