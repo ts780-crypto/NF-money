@@ -33,8 +33,23 @@
  
 </head>
 <body>
-
-<!-- ヘッダー -->
+  
+  <!-- パスワード認証画面（初期状態） -->
+  <div id="authOverlay" class="auth-overlay">
+    <div class="auth-card">
+      <h3>🔑 認証が必要です</h3>
+      <p style="font-size: 12px; color: var(--text-sub); margin: 0;">入力画面を開くにはパスワードを入力してください</p>
+      
+      <form onsubmit="authenticate(event)">
+        <input type="password" id="passInput" placeholder="パスワードを入力" autocomplete="current-password">
+        <button type="submit" class="btn-action" style="width: 100%; background: var(--primary); color: #ffffff; border: none; padding: 12px; font-size: 14px;">解除する</button>
+      </form>
+      
+      <p id="authError" style="color: var(--delete-text); font-size: 12px; margin: 10px 0 0 0; display: none;">パスワードが違います</p>
+      <a href="index.html" class="header-nav-link" style="display: inline-block; margin-top: 16px;">← 集計画面に戻る</a>
+    </div>
+  </div>
+  <!-- ヘッダー -->
   <div class="header-bar">
     <h2>NF受付 記録システム</h2>
     <a href="index.html" class="header-nav-link">← 集計画面</a>
