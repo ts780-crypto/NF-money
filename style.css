@@ -1,0 +1,246 @@
+/* ==========================================
+   1. カラー変数（テーマ設定）
+   ========================================== */
+:root {
+  --bg-color: #faf6f0;
+  --card-bg: #ffffff;
+  --text-main: #292524;
+  --text-sub: #57534e;
+  --primary: #ea580c;
+  --link-color: #ea580c;
+  --border: #e7e5e4;
+  --input-bg: #fefcfb;
+
+  --btn-bg: #ffffff;
+  --btn-text: #c2410c;
+  --btn-border: #ffedd5;
+  --btn-shadow: #fdba74;
+  --btn-active-bg: #fff7ed;
+
+  --action-bg: #ffffff;
+  --action-text: #57534e;
+  --action-active: #f5f5f4;
+  --cancel-bg: #fffbeb;
+  --cancel-border: #fde68a;
+  --cancel-text: #d97706;
+  --delete-bg: #fef2f2;
+  --delete-border: #fecaca;
+  --delete-text: #dc2626;
+
+  --table-header-bg: #faf6f0;
+  --table-border: #f5f5f4;
+
+  --status-online-bg: #dcfce7;
+  --status-online-text: #15803d;
+  --status-offline-bg: #fef3c7;
+  --status-offline-text: #b45309;
+}
+
+/* ダークモード */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #1c1917;
+    --card-bg: #292524;
+    --text-main: #f5f5f4;
+    --text-sub: #a8a29e;
+    --primary: #f97316;
+    --link-color: #fb923c;
+    --border: #44403c;
+    --input-bg: #1c1917;
+
+    --btn-bg: #292524;
+    --btn-text: #fb923c;
+    --btn-border: #ea580c;
+    --btn-shadow: #9a3412;
+    --btn-active-bg: #431407;
+
+    --action-bg: #292524;
+    --action-text: #d6d3d1;
+    --action-active: #44403c;
+    --cancel-bg: #451a03;
+    --cancel-border: #78350f;
+    --cancel-text: #fbbf24;
+    --delete-bg: #450a0a;
+    --delete-border: #7f1d1d;
+    --delete-text: #f87171;
+
+    --table-header-bg: #1c1917;
+    --table-border: #44403c;
+
+    --status-online-bg: #064e3b;
+    --status-online-text: #4ade80;
+    --status-offline-bg: #78350f;
+    --status-offline-text: #fef08a;
+  }
+}
+
+/* ==========================================
+   2. ベーススタイル
+   ========================================== */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  padding: 24px 16px;
+  max-width: 420px;
+  margin: 0 auto;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  font-family: inherit;
+}
+
+/* ==========================================
+   3. ヘッダー＆ナビゲーション
+   ========================================== */
+.header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.header-bar h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+}
+.header-nav-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--link-color);
+  text-decoration: none;
+  padding: 6px 12px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  transition: opacity 0.2s, background-color 0.3s;
+  white-space: nowrap;
+}
+.header-nav-link:active {
+  opacity: 0.7;
+}
+
+/* ==========================================
+   4. ステータスバー
+   ========================================== */
+.status-bar, .status-sub-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.net-badge, .status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  transition: all 0.3s;
+}
+.net-badge.online, .status-badge { background-color: var(--status-online-bg); color: var(--status-online-text); }
+.net-badge.offline { background-color: var(--status-offline-bg); color: var(--status-offline-text); }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background-color: currentColor; }
+.sync-info, .last-update { color: var(--text-sub); font-size: 12px; }
+
+/* ==========================================
+   5. 集計カード（共通）
+   ========================================== */
+.summary-box { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.summary-grid { display: flex; flex-direction: column; gap: 16px; }
+
+.summary-card {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  border-radius: 16px;
+  padding: 16px 10px;
+  text-align: center;
+  color: #ffffff;
+  box-shadow: 0 8px 16px -3px rgba(234, 88, 12, 0.3);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.summary-grid .summary-card { padding: 24px 16px; border-radius: 20px; }
+
+.summary-card .summary-label, .summary-card .label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.88);
+  margin-bottom: 6px;
+}
+.summary-grid .summary-card .label { font-size: 14px; margin-bottom: 8px; letter-spacing: 0.05em; }
+
+.summary-card .summary-value, .summary-card .value {
+  font-size: 26px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+.summary-grid .summary-card .value { font-size: 42px; line-height: 1; }
+
+.summary-card .unit { font-size: 13px; font-weight: 600; opacity: 0.9; margin-left: 2px; }
+.summary-grid .summary-card .unit { font-size: 18px; margin-left: 4px; }
+
+/* ==========================================
+   6. 入力画面固有パーツ (index.html)
+   ========================================== */
+.user-box {
+  background: var(--card-bg);
+  padding: 14px 16px;
+  border-radius: 14px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border);
+}
+.user-box label { display: block; font-size: 11px; font-weight: 600; color: var(--text-sub); margin-bottom: 6px; }
+.user-box input {
+  width: 100%; padding: 8px 10px; box-sizing: border-box;
+  border: 1px solid var(--border); border-radius: 8px; font-size: 15px;
+  color: var(--text-main); background-color: var(--input-bg); outline: none;
+}
+.user-box input:focus { border-color: var(--primary); }
+
+.btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+button.btn-input {
+  padding: 18px 10px; font-size: 24px; font-weight: 700;
+  background: var(--btn-bg); color: var(--btn-text);
+  border: 1px solid var(--btn-border); border-radius: 16px; cursor: pointer;
+  box-shadow: 0 5px 0 var(--btn-shadow); transition: all 0.06s ease;
+  user-select: none; -webkit-user-select: none;
+}
+button.btn-input .btn-unit { font-size: 16px; font-weight: 600; margin-left: 2px; }
+button.btn-input:active { transform: translateY(5px); box-shadow: 0 0 0 var(--btn-shadow); background-color: var(--btn-active-bg); }
+
+.action-group { display: flex; gap: 8px; margin-bottom: 24px; }
+.btn-action {
+  flex: 1; padding: 10px 4px; cursor: pointer; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--action-bg);
+  font-size: 13px; font-weight: 600; color: var(--action-text);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+.btn-action:active { background-color: var(--action-active); }
+.btn-action.cancel { color: var(--cancel-text); border-color: var(--cancel-border); background-color: var(--cancel-bg); }
+.btn-action.delete { color: var(--delete-text); border-color: var(--delete-border); background-color: var(--delete-bg); }
+
+h3 { font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 10px; }
+.table-card { background: var(--card-bg); border-radius: 14px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 12px 10px; text-align: center; font-size: 13px; }
+th { background: var(--table-header-bg); color: var(--text-sub); font-weight: 600; border-bottom: 1px solid var(--border); }
+td { border-bottom: 1px solid var(--table-border); color: var(--text-main); }
+tr:last-child td { border-bottom: none; }
+
+.pending-tag {
+  display: inline-block; font-size: 10px; padding: 2px 6px; border-radius: 4px;
+  background-color: var(--cancel-bg); color: var(--cancel-text);
+  border: 1px solid var(--cancel-border); margin-left: 4px;
+}
