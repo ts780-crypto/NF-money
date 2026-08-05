@@ -1,12 +1,18 @@
 // Firebase Realtime Database REST API エンドポイント
 const DB_URL = "https://nf-reception-default-rtdb.asia-southeast1.firebasedatabase.app/moneyLogs";
 
+// モニター表示用の制限設定
+const MAX_DISPLAY_COUNT = 10; 
+
+// 表示モード ('limit': 直近10件, 'all': 全件) - localStorageから状態を復元
+let displayMode = localStorage.getItem('nf_viewer_display_mode') || 'limit';
 let remoteLogs = [];
 
 window.onload = function() {
-  // 1. キャッシュから即座に読み込んで表示（0表示を回避）
+  // 1. キャッシュから即座に読み込んで表示
   loadCachedRemoteLogs();
-  renderSummary();
+  updateToggleUI();
+  renderData();
 
   // 2. リアルタイム監視開始
   initRealtimeStream();
@@ -27,18 +33,66 @@ function saveCachedRemoteLogs() {
   localStorage.setItem('nf_cached_remote_logs', JSON.stringify(remoteLogs));
 }
 
-function renderSummary() {
+// 表示モード切り替え処理
+function setDisplayMode(mode) {
+  displayMode = mode;
+  localStorage.setItem('nf_viewer_display_mode', mode);
+  updateToggleUI();
+  renderData();
+}
+
+// ボタン見た目とタイトルの更新
+function updateToggleUI() {
+  const btn10 = document.getElementById('btnLimit10');
+  const btnAll = document.getElementById('btnLimitAll');
+  const title = document.getElementById('historyTitle');
+
+  if (!btn10 || !btnAll) return;
+
+  if (displayMode === 'all') {
+    btn10.classList.remove('active');
+    btnAll.classList.add('active');
+    if (title) title.textContent = '記録履歴（全件）';
+  } else {
+    btn10.classList.add('active');
+    btnAll.classList.remove('active');
+    if (title) title.textContent = `記録履歴（直近${MAX_DISPLAY_COUNT}件）`;
+  }
+}
+
+function renderData() {
+  // 1. 件数・合計金額の計算（常に全データから集計）
   const count = remoteLogs.length;
   const sum = remoteLogs.reduce((total, item) => total + Number(item.amount || 0), 0);
 
   document.getElementById('totalCount').innerHTML = `${count} <span class="unit">件</span>`;
   document.getElementById('totalAmount').innerHTML = `${sum.toLocaleString()} <span class="unit">円</span>`;
 
+  // 2. 最終更新時刻の更新
   const now = new Date();
   const timeStr = String(now.getHours()).padStart(2, '0') + ':' +
                   String(now.getMinutes()).padStart(2, '0') + ':' +
                   String(now.getSeconds()).padStart(2, '0');
   document.getElementById('lastUpdate').textContent = `最終更新: ${timeStr}`;
+
+  // 3. 記録履歴テーブルの描画
+  const tbody = document.getElementById('logTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  let logsToRender = remoteLogs.slice().reverse();
+
+  // Modeが 'limit' の場合のみ直近10件に絞り込み
+  if (displayMode === 'limit') {
+    logsToRender = logsToRender.slice(0, MAX_DISPLAY_COUNT);
+  }
+
+  logsToRender.forEach(item => {
+    const row = tbody.insertRow();
+    row.insertCell(0).textContent = item.date;
+    row.insertCell(1).textContent = item.amount;
+    row.insertCell(2).textContent = item.user || "未設定";
+  });
 }
 
 function initRealtimeStream() {
@@ -71,7 +125,7 @@ function initRealtimeStream() {
     }
 
     saveCachedRemoteLogs();
-    renderSummary();
+    renderData();
   });
 
   eventSource.onerror = (err) => {
