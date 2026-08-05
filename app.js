@@ -1,9 +1,11 @@
 // Firebase Realtime Database REST API エンドポイント
 const DB_URL = "https://nf-reception-default-rtdb.asia-southeast1.firebasedatabase.app/moneyLogs";
 
+// 定数・変数
+const DEFAULT_PRESETS = [250, 200, 150, 100]; // デフォルト金額
 let remoteLogs = [];   // Firebaseから同期されたデータ
 let pendingLogs = [];  // ローカル（localStorage）にある未送信データ
-let presetAmounts = [250, 200, 150, 100]; // 金額ボタンの初期値
+let presetAmounts = [...DEFAULT_PRESETS]; // 金額ボタンの設定値
 
 window.onload = function() {
   // Service Worker 登録
@@ -102,6 +104,16 @@ function savePresets() {
 
   renderButtons();
   toggleSettings();
+}
+
+// ★ 追加：デフォルトに戻す処理
+function resetPresets() {
+  if (confirm('金額ボタンを初期設定（250円・200円・150円・100円）に戻しますか？')) {
+    presetAmounts = [...DEFAULT_PRESETS];
+    localStorage.removeItem('nf_preset_amounts');
+    renderButtons();
+    toggleSettings();
+  }
 }
 
 // --- REST API リアルタイム監視 (EventSource) ---
