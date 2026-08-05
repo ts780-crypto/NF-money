@@ -1,30 +1,80 @@
+// Firebase Realtime Database REST API エンドポイント
 const DB_URL = "https://nf-reception-default-rtdb.asia-southeast1.firebasedatabase.app/moneyLogs";
 
+let remoteLogs = [];
+
 window.onload = function() {
+  // 1. キャッシュから即座に読み込んで表示（0表示を回避）
+  loadCachedRemoteLogs();
+  renderSummary();
+
+  // 2. リアルタイム監視開始
+  initRealtimeStream();
+};
+
+function loadCachedRemoteLogs() {
+  const cached = localStorage.getItem('nf_cached_remote_logs');
+  if (cached) {
+    try {
+      remoteLogs = JSON.parse(cached);
+    } catch (e) {
+      console.error("キャッシュ読み込みエラー", e);
+    }
+  }
+}
+
+function saveCachedRemoteLogs() {
+  localStorage.setItem('nf_cached_remote_logs', JSON.stringify(remoteLogs));
+}
+
+function renderSummary() {
+  const count = remoteLogs.length;
+  const sum = remoteLogs.reduce((total, item) => total + Number(item.amount || 0), 0);
+
+  document.getElementById('totalCount').innerHTML = `${count} <span class="unit">件</span>`;
+  document.getElementById('totalAmount').innerHTML = `${sum.toLocaleString()} <span class="unit">円</span>`;
+
+  const now = new Date();
+  const timeStr = String(now.getHours()).padStart(2, '0') + ':' +
+                  String(now.getMinutes()).padStart(2, '0') + ':' +
+                  String(now.getSeconds()).padStart(2, '0');
+  document.getElementById('lastUpdate').textContent = `最終更新: ${timeStr}`;
+}
+
+function initRealtimeStream() {
   const eventSource = new EventSource(`${DB_URL}.json`);
 
   eventSource.addEventListener('put', (e) => {
     const res = JSON.parse(e.data);
-    let count = 0;
-    let sum = 0;
+    if (!res) return;
 
-    if (res && res.data) {
-      const logs = (res.path === '/') 
-        ? Object.values(res.data) 
-        : [res.data];
-
-      count = logs.length;
-      sum = logs.reduce((total, item) => total + Number(item.amount || 0), 0);
+    if (res.path === '/') {
+      // 全データ更新
+      const rawData = res.data || {};
+      remoteLogs = Object.keys(rawData).map(key => ({
+        key: key,
+        ...rawData[key]
+      }));
+    } else {
+      // 差分（単一レコード）更新・削除
+      const key = res.path.replace('/', '');
+      if (res.data === null) {
+        remoteLogs = remoteLogs.filter(item => item.key !== key);
+      } else {
+        const index = remoteLogs.findIndex(item => item.key === key);
+        if (index > -1) {
+          remoteLogs[index] = { key: key, ...res.data };
+        } else {
+          remoteLogs.push({ key: key, ...res.data });
+        }
+      }
     }
 
-    // 表示更新
-    document.getElementById('totalCount').innerHTML = `${count} <span class="unit">件</span>`;
-    document.getElementById('totalAmount').innerHTML = `${sum.toLocaleString()} <span class="unit">円</span>`;
-
-    const now = new Date();
-    const timeStr = String(now.getHours()).padStart(2, '0') + ':' +
-                    String(now.getMinutes()).padStart(2, '0') + ':' +
-                    String(now.getSeconds()).padStart(2, '0');
-    document.getElementById('lastUpdate').textContent = `最終更新: ${timeStr}`;
+    saveCachedRemoteLogs();
+    renderSummary();
   });
-};
+
+  eventSource.onerror = (err) => {
+    console.warn("リアルタイム接続切断。再接続を待機中...", err);
+  };
+}
