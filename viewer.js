@@ -7,24 +7,20 @@ const MAX_DISPLAY_COUNT = 10;
 // 表示モード ('limit': 直近10件, 'all': 全件) - localStorageから状態を復元
 let displayMode = localStorage.getItem('nf_viewer_display_mode') || 'limit';
 let remoteLogs = [];
-let eventSource = null; // リアルタイム通信オブジェクト
+let eventSource = null;
 
 window.onload = function() {
-  // Service Worker 登録（オフライン対応）
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Error:', err));
   }
 
-  // 1. キャッシュから即座に読み込んで表示
   loadCachedRemoteLogs();
   updateToggleUI();
   renderData();
 
-  // 2. ネットワーク状態の監視イベント設定
   window.addEventListener('online', updateNetworkStatus);
   window.addEventListener('offline', updateNetworkStatus);
 
-  // 3. リアルタイム監視開始
   initRealtimeStream();
 };
 
@@ -34,8 +30,6 @@ function updateNetworkStatus() {
   const statusText = document.getElementById('netStatusText');
   if (!statusBadge || !statusText) return;
 
-  // 判定ロジックの強化：
-  // ブラウザのオン/オフライン情報 ＆ FirebaseへのEventSourceが OPEN (readyState === 1) の時のみ「同期中」
   const isSSEOpen = eventSource && (eventSource.readyState === EventSource.OPEN);
   const isConnected = navigator.onLine && isSSEOpen;
 
@@ -51,11 +45,7 @@ function updateNetworkStatus() {
 function loadCachedRemoteLogs() {
   const cached = localStorage.getItem('nf_cached_remote_logs');
   if (cached) {
-    try {
-      remoteLogs = JSON.parse(cached);
-    } catch (e) {
-      console.error("キャッシュ読み込みエラー", e);
-    }
+    try { remoteLogs = JSON.parse(cached); } catch (e) { console.error("キャッシュ読み込みエラー", e); }
   }
 }
 
@@ -63,7 +53,6 @@ function saveCachedRemoteLogs() {
   localStorage.setItem('nf_cached_remote_logs', JSON.stringify(remoteLogs));
 }
 
-// 表示モード切り替え処理
 function setDisplayMode(mode) {
   displayMode = mode;
   localStorage.setItem('nf_viewer_display_mode', mode);
@@ -71,7 +60,6 @@ function setDisplayMode(mode) {
   renderData();
 }
 
-// ボタン見た目とタイトルの更新
 function updateToggleUI() {
   const btn10 = document.getElementById('btnLimit10');
   const btnAll = document.getElementById('btnLimitAll');
@@ -90,52 +78,55 @@ function updateToggleUI() {
   }
 }
 
+// --- 高速画面描画（DocumentFragment 使用） ---
 function renderData() {
-  // 1. 件数・合計金額の計算（常に全データから集計）
   const count = remoteLogs.length;
   const sum = remoteLogs.reduce((total, item) => total + Number(item.amount || 0), 0);
 
   document.getElementById('totalCount').innerHTML = `${count} <span class="unit">件</span>`;
   document.getElementById('totalAmount').innerHTML = `${sum.toLocaleString()} <span class="unit">円</span>`;
 
-  // 2. 最終更新時刻の更新
   const now = new Date();
-  const timeStr = String(now.getHours()).padStart(2, '0') + ':' +
-                  String(now.getMinutes()).padStart(2, '0') + ':' +
-                  String(now.getSeconds()).padStart(2, '0');
+  const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
   document.getElementById('lastUpdate').textContent = `最終更新: ${timeStr}`;
 
-  // 3. 記録履歴テーブルの描画
   const tbody = document.getElementById('logTableBody');
   if (!tbody) return;
-  tbody.innerHTML = '';
 
   let logsToRender = remoteLogs.slice().reverse();
-
-  // Modeが 'limit' の場合のみ直近10件に絞り込み
   if (displayMode === 'limit') {
     logsToRender = logsToRender.slice(0, MAX_DISPLAY_COUNT);
   }
 
+  const fragment = document.createDocumentFragment();
   logsToRender.forEach(item => {
-    const row = tbody.insertRow();
-    row.insertCell(0).textContent = item.date;
-    row.insertCell(1).textContent = item.amount;
-    row.insertCell(2).textContent = item.user || "未設定";
+    const tr = document.createElement('tr');
+    
+    const tdDate = document.createElement('td');
+    tdDate.textContent = item.date;
+
+    const tdAmount = document.createElement('td');
+    tdAmount.textContent = item.amount;
+
+    const tdUser = document.createElement('td');
+    tdUser.textContent = item.user || "未設定";
+
+    tr.appendChild(tdDate);
+    tr.appendChild(tdAmount);
+    tr.appendChild(tdUser);
+    fragment.appendChild(tr);
   });
+
+  tbody.innerHTML = '';
+  tbody.appendChild(fragment);
 }
 
 function initRealtimeStream() {
-  if (eventSource) {
-    eventSource.close();
-  }
+  if (eventSource) eventSource.close();
 
   eventSource = new EventSource(`${DB_URL}.json`);
 
-  // 接続確立時
-  eventSource.onopen = () => {
-    updateNetworkStatus();
-  };
+  eventSource.onopen = () => updateNetworkStatus();
 
   eventSource.addEventListener('put', (e) => {
     updateNetworkStatus();
@@ -143,23 +134,18 @@ function initRealtimeStream() {
     if (!res) return;
 
     if (res.path === '/') {
-      // 全データ更新
       const rawData = res.data || {};
-      remoteLogs = Object.keys(rawData).map(key => ({
-        key: key,
-        ...rawData[key]
-      }));
+      remoteLogs = Object.keys(rawData).map(key => ({ key, ...rawData[key] }));
     } else {
-      // 差分（単一レコード）更新・削除
       const key = res.path.replace('/', '');
       if (res.data === null) {
         remoteLogs = remoteLogs.filter(item => item.key !== key);
       } else {
         const index = remoteLogs.findIndex(item => item.key === key);
         if (index > -1) {
-          remoteLogs[index] = { key: key, ...res.data };
+          remoteLogs[index] = { key, ...res.data };
         } else {
-          remoteLogs.push({ key: key, ...res.data });
+          remoteLogs.push({ key, ...res.data });
         }
       }
     }
@@ -168,7 +154,6 @@ function initRealtimeStream() {
     renderData();
   });
 
-  // 通信切断・エラー発生時
   eventSource.onerror = (err) => {
     console.warn("リアルタイム接続切断。再接続を待機中...", err);
     updateNetworkStatus();
