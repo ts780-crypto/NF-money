@@ -167,16 +167,11 @@ function renderData() {
   document.getElementById('totalCount').innerHTML = `${count} <span class="unit">件</span>`;
   document.getElementById('totalAmount').innerHTML = `${sum.toLocaleString()} <span class="unit">円</span>`;
 
-  // ネットワーク状態に応じた同期ステータス表示の切り替え
+  // ★ 楽観的UI: オフライン時のみ「未送信: X件」を表示し、オンライン時は常に「全データ同期完了」とする
   const syncInfo = document.getElementById('syncInfo');
-  if (activePendingLogs.length > 0) {
-    if (navigator.onLine) {
-      syncInfo.textContent = "同期中...";
-      syncInfo.style.color = 'var(--link-color)';
-    } else {
-      syncInfo.textContent = `未送信: ${activePendingLogs.length}件`;
-      syncInfo.style.color = 'var(--cancel-text)';
-    }
+  if (!navigator.onLine && activePendingLogs.length > 0) {
+    syncInfo.textContent = `未送信: ${activePendingLogs.length}件`;
+    syncInfo.style.color = 'var(--cancel-text)';
   } else {
     syncInfo.textContent = "全データ同期完了";
     syncInfo.style.color = 'var(--text-sub)';
@@ -191,16 +186,11 @@ function renderData() {
     const userCell = row.insertCell(2);
     userCell.textContent = item.user || "未設定";
     
-    // オンライン時は「送信中」、オフライン時は「未送信」タグを表示
-    if (item.isPending) {
+    // ★ 楽観的UI: オフラインの未送信データのみ「未送信」タグを表示（オンライン時は出さない）
+    if (item.isPending && !navigator.onLine) {
       const tag = document.createElement('span');
       tag.className = 'pending-tag';
-      if (navigator.onLine) {
-        tag.textContent = '送信中';
-        tag.style.opacity = '0.6';
-      } else {
-        tag.textContent = '未送信';
-      }
+      tag.textContent = '未送信';
       userCell.appendChild(tag);
     }
   });
