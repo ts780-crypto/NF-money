@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="nf-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e40af;" />
+      <stop offset="100%" style="stop-color:#0f172a;" />
+    </linearGradient>
+  </defs>
+  <!-- 背景角丸ボックス -->
+  <rect x="20" y="20" width="360" height="360" rx="80" fill="url(#nf-blue)" />
+  <!-- チケットモチーフ -->
+  <path d="M130 110 h140 a20 20 0 0 1 20 20 v30 a15 15 0 0 0 0 30 v30 a20 20 0 0 1 -20 20 h-140 a20 20 0 0 1 -20 -20 v-30 a15 15 0 0 0 0 -30 v-30 a20 20 0 0 1 20 -20 Z" fill="#ffffff" opacity="0.12"/>
+  <!-- NF 太文字 -->
+  <text x="200" y="210" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="115" fill="#ffffff" text-anchor="middle" letter-spacing="-3">NF</text>
+  <!-- 受付 ピル型タグ -->
+  <rect x="110" y="245" width="180" height="52" rx="26" fill="#ffffff" />
+  <text x="200" y="281" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="800" font-size="26" fill="#1e3a8a" text-anchor="middle" letter-spacing="4">受付</text>
+</svg>
