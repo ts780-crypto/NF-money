@@ -88,7 +88,7 @@ function toggleSettings() {
   if (isHidden) {
     document.getElementById('preset1').value = presetAmounts[0] || '';
     document.getElementById('preset2').value = presetAmounts[1] || '';
-    document.getElementById('preset3').value = presetAmounts[2] || '';
+    document.getElementById('preset3').value = presetAmounts[3] || '';
     document.getElementById('preset4').value = presetAmounts[3] || '';
   }
 }
@@ -106,7 +106,6 @@ function savePresets() {
   toggleSettings();
 }
 
-// ★ 追加：デフォルトに戻す処理
 function resetPresets() {
   if (confirm('金額ボタンを初期設定（250円・200円・150円・100円）に戻しますか？')) {
     presetAmounts = [...DEFAULT_PRESETS];
@@ -184,7 +183,7 @@ function updateNetworkStatus() {
   renderData();
 }
 
-// REST API (POST) を使った未送信データの一括送信
+// REST API (POST) を使った未送信データの一括送信（チラつき防止対応）
 async function syncPendingLogs() {
   if (!navigator.onLine || pendingLogs.length === 0) return;
 
@@ -205,6 +204,22 @@ async function syncPendingLogs() {
 
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
+      const resData = await res.json();
+      
+      // SSE（リアルタイム通知）が届く前の隙間を埋めるため、即座に remoteLogs へ追加
+      if (resData && resData.name) {
+        if (!remoteLogs.some(r => r.key === resData.name)) {
+          remoteLogs.push({
+            key: resData.name,
+            id: item.id,
+            date: item.date,
+            amount: item.amount,
+            user: item.user,
+            timestamp: item.timestamp || Date.now()
+          });
+        }
+      }
+
       // 送信成功したものをローカルから除去
       pendingLogs = pendingLogs.filter(p => p.id !== item.id);
       savePendingLogs();
@@ -213,6 +228,7 @@ async function syncPendingLogs() {
       break;
     }
   }
+  saveCachedRemoteLogs();
   renderData();
 }
 
