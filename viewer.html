@@ -30,7 +30,6 @@
   <meta name="theme-color" content="#ea580c">
 
   <link rel="stylesheet" href="style.css?v=1">
-  
 </head>
 <body>
 
@@ -49,7 +48,7 @@
     <div class="last-update" id="lastUpdate">最終更新: --:--:--</div>
   </div>
 
-  <main class="summary-grid">
+  <main class="summary-grid" style="margin-bottom: 24px;">
     <!-- 売上件数 -->
     <div class="summary-card">
       <div class="label">売上件数</div>
@@ -62,6 +61,31 @@
       <div class="value" id="totalAmount">0 <span class="unit">円</span></div>
     </div>
   </main>
+
+  <!-- 記録履歴ヘッダー＆切替ボタン -->
+  <div class="history-header">
+    <h3 id="historyTitle">記録履歴（直近10件）</h3>
+    <div class="toggle-group">
+      <button type="button" id="btnLimit10" class="btn-toggle active" onclick="setDisplayMode('limit')">直近10件</button>
+      <button type="button" id="btnLimitAll" class="btn-toggle" onclick="setDisplayMode('all')">全件</button>
+    </div>
+  </div>
+
+  <!-- 記録履歴テーブル -->
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>日時</th>
+          <th>金額(円)</th>
+          <th>担当者</th>
+        </tr>
+      </thead>
+      <tbody id="logTableBody">
+        <!-- JavaScriptで描画 -->
+      </tbody>
+    </table>
+  </div>
 
   <script src="viewer.js"></script>
 
