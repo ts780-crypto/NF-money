@@ -9,7 +9,7 @@ let displayMode = localStorage.getItem('nf_viewer_display_mode') || 'limit';
 let remoteLogs = [];
 
 window.onload = function() {
-  // ★ Service Worker 登録（オフライン対応を有効化）
+  // Service Worker 登録（オフライン対応）
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Error:', err));
   }
@@ -19,9 +19,29 @@ window.onload = function() {
   updateToggleUI();
   renderData();
 
-  // 2. リアルタイム監視開始
+  // 2. ネットワーク状態の監視と初期表示の設定
+  window.addEventListener('online', updateNetworkStatus);
+  window.addEventListener('offline', updateNetworkStatus);
+  updateNetworkStatus();
+
+  // 3. リアルタイム監視開始
   initRealtimeStream();
 };
+
+// --- ネットワーク状態の表示更新 ---
+function updateNetworkStatus() {
+  const statusBadge = document.getElementById('netStatus');
+  const statusText = document.getElementById('netStatusText');
+  if (!statusBadge || !statusText) return;
+
+  if (navigator.onLine) {
+    statusBadge.className = "net-badge online";
+    statusText.textContent = "リアルタイム同期中";
+  } else {
+    statusBadge.className = "net-badge offline";
+    statusText.textContent = "オフライン（同期停止）";
+  }
+}
 
 function loadCachedRemoteLogs() {
   const cached = localStorage.getItem('nf_cached_remote_logs');
