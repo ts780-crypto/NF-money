@@ -1,45 +1,37 @@
 // Firebase Realtime Database REST API エンドポイント
 const DB_URL = "https://nf-reception-default-rtdb.asia-southeast1.firebasedatabase.app/moneyLogs";
 
-// ★ 入力画面のパスワード設定（お好みの文字列に変更してください）
+// 入力画面のパスワード設定
 const APP_PASSWORD = "nf2026";
 
 // 定数・変数
-const DEFAULT_PRESETS = [250, 200, 150, 100]; // デフォルト金額
+const DEFAULT_PRESETS = [250, 200, 150, 100];
 let remoteLogs = [];   // Firebaseから同期されたデータ
 let pendingLogs = [];  // ローカル（localStorage）にある未送信データ
-let presetAmounts = [...DEFAULT_PRESETS]; // 金額ボタンの設定値
+let presetAmounts = [...DEFAULT_PRESETS];
+let eventSource = null; // リアルタイム通信オブジェクト
+let isSyncing = false;  // 二重送信防止ロックフラグ
 
 window.onload = function() {
-  // 0. パスワード認証のチェック
   checkAuthStatus();
   
-  // Service Worker 登録
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Error:', err));
   }
 
-  // 保存された担当者名の読み込み
   const savedName = localStorage.getItem('savedUserName');
   if (savedName) document.getElementById('userName').value = savedName;
 
-  // 1. 金額プリセットの読み込みとボタン描画
   loadPresets();
   renderButtons();
 
-  // 2. ローカルの未送信データ ＆ キャッシュされたリモートデータを即座に読み込み
   loadPendingLogs();
   loadCachedRemoteLogs();
-
-  // 3. サーバーからの受信を待たずに初回描画（0表示チラつき回避）
   renderData();
 
-  // ネットワーク状態の監視
   window.addEventListener('online', updateNetworkStatus);
   window.addEventListener('offline', updateNetworkStatus);
-  updateNetworkStatus();
 
-  // REST API (Server-Sent Events) によるリアルタイム監視開始
   initRealtimeStream();
 };
 
@@ -48,7 +40,6 @@ function checkAuthStatus() {
   const overlay = document.getElementById('authOverlay');
   if (!overlay) return;
 
-  // すでにセッション中に認証済みなら画面を隠す
   if (sessionStorage.getItem('nf_authenticated') === 'true') {
     overlay.style.display = 'none';
   } else {
@@ -57,7 +48,7 @@ function checkAuthStatus() {
 }
 
 function authenticate(event) {
-  if (event) event.preventDefault(); // フォーム送信によるリロードを防止
+  if (event) event.preventDefault();
 
   const input = document.getElementById('passInput').value;
   const errorMsg = document.getElementById('authError');
@@ -75,11 +66,7 @@ function authenticate(event) {
 function loadCachedRemoteLogs() {
   const cached = localStorage.getItem('nf_cached_remote_logs');
   if (cached) {
-    try {
-      remoteLogs = JSON.parse(cached);
-    } catch (e) {
-      console.error("キャッシュ読み込みエラー", e);
-    }
+    try { remoteLogs = JSON.parse(cached); } catch (e) { console.error("キャッシュ読み込みエラー", e); }
   }
 }
 
@@ -87,30 +74,30 @@ function saveCachedRemoteLogs() {
   localStorage.setItem('nf_cached_remote_logs', JSON.stringify(remoteLogs));
 }
 
-// --- 金額プリセット（ボタンカスタマイズ）機能 ---
+// --- 金額プリセット機能 ---
 function loadPresets() {
   const saved = localStorage.getItem('nf_preset_amounts');
   if (saved) {
-    try {
-      presetAmounts = JSON.parse(saved);
-    } catch (e) {
-      console.error("プリセット読み込みエラー", e);
-    }
+    try { presetAmounts = JSON.parse(saved); } catch (e) { console.error("プリセット読み込みエラー", e); }
   }
 }
 
 function renderButtons() {
   const grid = document.getElementById('btnGrid');
   if (!grid) return;
-  grid.innerHTML = '';
-
+  
+  const fragment = document.createDocumentFragment();
   presetAmounts.forEach(amount => {
     const btn = document.createElement('button');
+    btn.type = 'button';
     btn.className = 'btn-input';
     btn.innerHTML = `${amount}<span class="btn-unit">円</span>`;
-    btn.onclick = () => 記録(amount);
-    grid.appendChild(btn);
+    btn.onclick = () => recordLog(amount);
+    fragment.appendChild(btn);
   });
+
+  grid.innerHTML = '';
+  grid.appendChild(fragment);
 }
 
 function toggleSettings() {
@@ -122,7 +109,7 @@ function toggleSettings() {
   if (isHidden) {
     document.getElementById('preset1').value = presetAmounts[0] || '';
     document.getElementById('preset2').value = presetAmounts[1] || '';
-    document.getElementById('preset3').value = presetAmounts[3] || '';
+    document.getElementById('preset3').value = presetAmounts[2] || '';
     document.getElementById('preset4').value = presetAmounts[3] || '';
   }
 }
@@ -151,47 +138,45 @@ function resetPresets() {
 
 // --- REST API リアルタイム監視 (EventSource) ---
 function initRealtimeStream() {
-  const eventSource = new EventSource(`${DB_URL}.json`);
+  if (eventSource) eventSource.close();
+
+  eventSource = new EventSource(`${DB_URL}.json`);
+
+  eventSource.onopen = () => updateNetworkStatus();
 
   eventSource.addEventListener('put', (e) => {
+    updateNetworkStatus();
     const res = JSON.parse(e.data);
     if (!res) return;
 
     if (res.path === '/') {
-      // 全データ更新
       const rawData = res.data || {};
-      remoteLogs = Object.keys(rawData).map(key => ({
-        key: key,
-        ...rawData[key]
-      }));
+      remoteLogs = Object.keys(rawData).map(key => ({ key, ...rawData[key] }));
     } else {
-      // 差分（単一レコード）更新・削除
       const key = res.path.replace('/', '');
       if (res.data === null) {
-        // 削除された場合
         remoteLogs = remoteLogs.filter(item => item.key !== key);
       } else {
-        // 追加または変更された場合
         const index = remoteLogs.findIndex(item => item.key === key);
         if (index > -1) {
-          remoteLogs[index] = { key: key, ...res.data };
+          remoteLogs[index] = { key, ...res.data };
         } else {
-          remoteLogs.push({ key: key, ...res.data });
+          remoteLogs.push({ key, ...res.data });
         }
       }
     }
     
-    // 最新リモートデータをキャッシュに保存して再描画
     saveCachedRemoteLogs();
     renderData();
   });
 
   eventSource.onerror = (err) => {
     console.warn("リアルタイム接続切断。再接続を待機中...", err);
+    updateNetworkStatus();
   };
 }
 
-// --- ローカルキュー (localStorage) 操作 ---
+// --- ローカルキュー (localStorage) ---
 function loadPendingLogs() {
   const stored = localStorage.getItem('nf_pending_logs');
   pendingLogs = stored ? JSON.parse(stored) : [];
@@ -205,8 +190,12 @@ function savePendingLogs() {
 function updateNetworkStatus() {
   const statusBadge = document.getElementById('netStatus');
   const statusText = document.getElementById('netStatusText');
+  if (!statusBadge || !statusText) return;
 
-  if (navigator.onLine) {
+  const isSSEOpen = eventSource && (eventSource.readyState === EventSource.OPEN);
+  const isConnected = navigator.onLine && isSSEOpen;
+
+  if (isConnected) {
     statusBadge.className = "net-badge online";
     statusText.textContent = "オンライン";
     syncPendingLogs();
@@ -217,13 +206,15 @@ function updateNetworkStatus() {
   renderData();
 }
 
-// REST API (POST) を使った未送信データの一括送信（チラつき防止対応）
+// 排他制御（ロック）付き未送信データの一括同期
 async function syncPendingLogs() {
-  if (!navigator.onLine || pendingLogs.length === 0) return;
+  if (!navigator.onLine || pendingLogs.length === 0 || isSyncing) return;
 
-  const itemsToSync = [...pendingLogs];
-  for (const item of itemsToSync) {
-    try {
+  isSyncing = true; // 送信中ロック開始
+
+  try {
+    const itemsToSync = [...pendingLogs];
+    for (const item of itemsToSync) {
       const res = await fetch(`${DB_URL}.json`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -240,7 +231,6 @@ async function syncPendingLogs() {
 
       const resData = await res.json();
       
-      // SSE（リアルタイム通知）が届く前の隙間を埋めるため、即座に remoteLogs へ追加
       if (resData && resData.name) {
         if (!remoteLogs.some(r => r.key === resData.name)) {
           remoteLogs.push({
@@ -254,33 +244,28 @@ async function syncPendingLogs() {
         }
       }
 
-      // 送信成功したものをローカルから除去
       pendingLogs = pendingLogs.filter(p => p.id !== item.id);
       savePendingLogs();
-    } catch (err) {
-      console.error("送信エラー:", err);
-      break;
     }
+  } catch (err) {
+    console.error("送信エラー:", err);
+  } finally {
+    isSyncing = false; // 送信中ロック解除
+    saveCachedRemoteLogs();
+    renderData();
   }
-  saveCachedRemoteLogs();
-  renderData();
 }
 
 // --- 記録処理 ---
-function 記録(金額) {
+function recordLog(amount) {
   const userName = document.getElementById('userName').value || "未設定";
   const now = new Date();
-  const dateStr = now.getFullYear() + '/' +
-    String(now.getMonth() + 1).padStart(2, '0') + '/' +
-    String(now.getDate()).padStart(2, '0') + ' ' +
-    String(now.getHours()).padStart(2, '0') + ':' +
-    String(now.getMinutes()).padStart(2, '0') + ':' +
-    String(now.getSeconds()).padStart(2, '0');
+  const dateStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
 
   const logItem = {
-    id: Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+    id: `${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
     date: dateStr,
-    amount: 金額,
+    amount: amount,
     user: userName,
     timestamp: Date.now()
   };
@@ -294,11 +279,10 @@ function 記録(金額) {
   }
 }
 
-// --- 画面レンダリング ---
+// --- 高速画面描画（DocumentFragment 使用） ---
 function renderData() {
   const tbody = document.getElementById('logTableBody');
   if (!tbody) return;
-  tbody.innerHTML = '';
 
   const remoteIds = new Set(remoteLogs.map(r => r.id).filter(Boolean));
   const activePendingLogs = pendingLogs.filter(p => !remoteIds.has(p.id));
@@ -310,37 +294,52 @@ function renderData() {
   document.getElementById('totalCount').innerHTML = `${count} <span class="unit">件</span>`;
   document.getElementById('totalAmount').innerHTML = `${sum.toLocaleString()} <span class="unit">円</span>`;
 
-  // 楽観的UI: オフライン時のみ「未送信: X件」を表示
   const syncInfo = document.getElementById('syncInfo');
-  if (!navigator.onLine && activePendingLogs.length > 0) {
-    syncInfo.textContent = `未送信: ${activePendingLogs.length}件`;
-    syncInfo.style.color = 'var(--cancel-text)';
-  } else {
-    syncInfo.textContent = "全データ同期完了";
-    syncInfo.style.color = 'var(--text-sub)';
+  if (syncInfo) {
+    if (!navigator.onLine && activePendingLogs.length > 0) {
+      syncInfo.textContent = `未送信: ${activePendingLogs.length}件`;
+      syncInfo.style.color = 'var(--cancel-text)';
+    } else {
+      syncInfo.textContent = "全データ同期完了";
+      syncInfo.style.color = 'var(--text-sub)';
+    }
   }
 
-  // テーブル出力（新しい順）
-  allLogs.slice().reverse().forEach(item => {
-    const row = tbody.insertRow();
-    row.insertCell(0).textContent = item.date;
-    row.insertCell(1).textContent = item.amount;
+  // DocumentFragment による一括挿入（高速化）
+  const fragment = document.createDocumentFragment();
+  const logsToRender = allLogs.slice().reverse();
+
+  logsToRender.forEach(item => {
+    const tr = document.createElement('tr');
     
-    const userCell = row.insertCell(2);
-    userCell.textContent = item.user || "未設定";
+    const tdDate = document.createElement('td');
+    tdDate.textContent = item.date;
     
-    // オフラインの未送信データのみ「未送信」タグを表示
+    const tdAmount = document.createElement('td');
+    tdAmount.textContent = item.amount;
+
+    const tdUser = document.createElement('td');
+    tdUser.textContent = item.user || "未設定";
+
     if (item.isPending && !navigator.onLine) {
       const tag = document.createElement('span');
       tag.className = 'pending-tag';
       tag.textContent = '未送信';
-      userCell.appendChild(tag);
+      tdUser.appendChild(tag);
     }
+
+    tr.appendChild(tdDate);
+    tr.appendChild(tdAmount);
+    tr.appendChild(tdUser);
+    fragment.appendChild(tr);
   });
+
+  tbody.innerHTML = '';
+  tbody.appendChild(fragment);
 }
 
-// --- 操作機能 (REST API: DELETE) ---
-async function 直近1件削除() {
+// --- 操作機能 ---
+async function deleteLastLog() {
   const remoteIds = new Set(remoteLogs.map(r => r.id).filter(Boolean));
   const activePendingLogs = pendingLogs.filter(p => !remoteIds.has(p.id));
 
@@ -369,7 +368,7 @@ async function 直近1件削除() {
   alert('削除するデータがありません');
 }
 
-function csvダウンロード() {
+function downloadCSV() {
   const remoteIds = new Set(remoteLogs.map(r => r.id).filter(Boolean));
   const activePendingLogs = pendingLogs.filter(p => !remoteIds.has(p.id));
   const allLogs = [...remoteLogs, ...activePendingLogs];
@@ -394,7 +393,7 @@ function csvダウンロード() {
   URL.revokeObjectURL(url);
 }
 
-async function データ全削除() {
+async function deleteAllLogs() {
   if (confirm('全員の共有記録およびローカルの未送信データをすべて削除しますか？\n※元に戻せません')) {
     pendingLogs = [];
     remoteLogs = [];
@@ -407,3 +406,9 @@ async function データ全削除() {
     }
   }
 }
+
+// 日本語関数名の互換性エイリアス（HTML側の書き換えがなくても動くように保護）
+const 記録 = recordLog;
+const 直近1件削除 = deleteLastLog;
+const csvダウンロード = downloadCSV;
+const データ全削除 = deleteAllLogs;
