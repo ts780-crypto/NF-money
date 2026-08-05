@@ -14,8 +14,12 @@ window.onload = function() {
   const savedName = localStorage.getItem('savedUserName');
   if (savedName) document.getElementById('userName').value = savedName;
 
-  // ローカルの未送信データを読み込み
+  // 1. ローカルの未送信データ ＆ キャッシュされたリモートデータを即座に読み込み
   loadPendingLogs();
+  loadCachedRemoteLogs();
+
+  // 2. サーバーからデータが届く前に、前回のデータで即座に初回描画（0表示を回避！）
+  renderData();
 
   // ネットワーク状態の監視
   window.addEventListener('online', updateNetworkStatus);
@@ -25,6 +29,22 @@ window.onload = function() {
   // REST API (Server-Sent Events) によるリアルタイム監視開始
   initRealtimeStream();
 };
+
+// --- ローカルキャッシュ操作 ---
+function loadCachedRemoteLogs() {
+  const cached = localStorage.getItem('nf_cached_remote_logs');
+  if (cached) {
+    try {
+      remoteLogs = JSON.parse(cached);
+    } catch (e) {
+      console.error("キャッシュ読み込みエラー", e);
+    }
+  }
+}
+
+function saveCachedRemoteLogs() {
+  localStorage.setItem('nf_cached_remote_logs', JSON.stringify(remoteLogs));
+}
 
 // --- REST API リアルタイム監視 (EventSource) ---
 function initRealtimeStream() {
@@ -57,6 +77,9 @@ function initRealtimeStream() {
         }
       }
     }
+    
+    // 最新リモートデータをキャッシュに保存して再描画
+    saveCachedRemoteLogs();
     renderData();
   });
 
@@ -167,7 +190,7 @@ function renderData() {
   document.getElementById('totalCount').innerHTML = `${count} <span class="unit">件</span>`;
   document.getElementById('totalAmount').innerHTML = `${sum.toLocaleString()} <span class="unit">円</span>`;
 
-  // ★ 楽観的UI: オフライン時のみ「未送信: X件」を表示し、オンライン時は常に「全データ同期完了」とする
+  // 楽観的UI: オフライン時のみ「未送信: X件」を表示
   const syncInfo = document.getElementById('syncInfo');
   if (!navigator.onLine && activePendingLogs.length > 0) {
     syncInfo.textContent = `未送信: ${activePendingLogs.length}件`;
@@ -186,7 +209,7 @@ function renderData() {
     const userCell = row.insertCell(2);
     userCell.textContent = item.user || "未設定";
     
-    // ★ 楽観的UI: オフラインの未送信データのみ「未送信」タグを表示（オンライン時は出さない）
+    // オフラインの未送信データのみ「未送信」タグを表示
     if (item.isPending && !navigator.onLine) {
       const tag = document.createElement('span');
       tag.className = 'pending-tag';
@@ -254,7 +277,9 @@ function csvダウンロード() {
 async function データ全削除() {
   if (confirm('全員の共有記録およびローカルの未送信データをすべて削除しますか？\n※元に戻せません')) {
     pendingLogs = [];
+    remoteLogs = [];
     savePendingLogs();
+    saveCachedRemoteLogs();
     try {
       await fetch(`${DB_URL}.json`, { method: 'DELETE' });
     } catch (err) {
