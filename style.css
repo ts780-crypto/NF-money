@@ -1,62 +1,68 @@
 /* ==========================================
-   1. カラー変数（テーマ設定）
+   1. カラー変数（テーマ設定: ダークブルーグレー）
    ========================================== */
 :root {
-  --bg-color: #faf6f0;
-  --card-bg: #ffffff;
-  --text-main: #292524;
-  --text-sub: #57534e;
-  --primary: #ea580c;
-  --link-color: #ea580c;
-  --border: #e7e5e4;
-  --input-bg: #fefcfb;
+  --bg-color: #f1f5f9;           /* 全体背景: 淡いブルーグレー */
+  --card-bg: #ffffff;            /* カード背景 */
+  --text-main: #0f172a;          /* メイン文字: 濃いダークスレート */
+  --text-sub: #475569;           /* サブ文字 */
+  --primary: #334155;            /* メインアクセント */
+  --link-color: #334155;        /* リンクカラー */
+  --border: #cbd5e1;             /* 境界線 */
+  --input-bg: #ffffff;           /* 入力欄背景 */
 
+  /* 金額入力ボタン（視認性と境界線を強調） */
   --btn-bg: #ffffff;
-  --btn-text: #c2410c;
-  --btn-border: #ffedd5;
-  --btn-shadow: #fdba74;
-  --btn-active-bg: #fff7ed;
+  --btn-text: #0f172a;
+  --btn-border: #64748b;        /* くっきりした枠線 */
+  --btn-shadow: #cbd5e1;        /* ボタンの立体感 */
+  --btn-active-bg: #e2e8f0;
 
-  --action-bg: #ffffff;
-  --action-text: #57534e;
-  --action-active: #f5f5f4;
-  --cancel-bg: #fffbeb;
+  /* アクションボタン */
+  --action-bg: #e2e8f0;
+  --action-text: #1e293b;
+  --action-active: #cbd5e1;
+  --cancel-bg: #fef3c7;
   --cancel-border: #fde68a;
-  --cancel-text: #d97706;
-  --delete-bg: #fef2f2;
-  --delete-border: #fecaca;
-  --delete-text: #dc2626;
+  --cancel-text: #b45309;
+  --delete-bg: #ffe4e6;
+  --delete-border: #fecdd3;
+  --delete-text: #9f1239;
 
-  --table-header-bg: #faf6f0;
-  --table-border: #f5f5f4;
+  /* テーブル */
+  --table-header-bg: #e2e8f0;
+  --table-border: #cbd5e1;
 
-  --status-online-bg: #dcfce7;
-  --status-online-text: #15803d;
-  --status-offline-bg: #fef3c7;
-  --status-offline-text: #b45309;
+  /* ステータスバー */
+  --status-online-bg: #ccfbf1;
+  --status-online-text: #0f766e;
+  --status-offline-bg: #ffedd5;
+  --status-offline-text: #9a3412;
 }
 
 /* ダークモード */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-color: #1c1917;
-    --card-bg: #292524;
-    --text-main: #f5f5f4;
-    --text-sub: #a8a29e;
-    --primary: #f97316;
-    --link-color: #fb923c;
-    --border: #44403c;
-    --input-bg: #1c1917;
+    --bg-color: #0f172a;         /* 深みのあるダークスレート */
+    --card-bg: #1e293b;          /* カード背景 */
+    --text-main: #f8fafc;        /* メイン文字 */
+    --text-sub: #cbd5e1;         /* サブ文字 */
+    --primary: #94a3b8;          /* メインアクセント */
+    --link-color: #cbd5e1;
+    --border: #334155;
+    --input-bg: #0f172a;
 
-    --btn-bg: #292524;
-    --btn-text: #fb923c;
-    --btn-border: #ea580c;
-    --btn-shadow: #9a3412;
-    --btn-active-bg: #431407;
+    /* 金額入力ボタン */
+    --btn-bg: #334155;
+    --btn-text: #ffffff;
+    --btn-border: #64748b;
+    --btn-shadow: #020617;
+    --btn-active-bg: #475569;
 
-    --action-bg: #292524;
-    --action-text: #d6d3d1;
-    --action-active: #44403c;
+    /* アクションボタン */
+    --action-bg: #334155;
+    --action-text: #f8fafc;
+    --action-active: #475569;
     --cancel-bg: #451a03;
     --cancel-border: #78350f;
     --cancel-text: #fbbf24;
@@ -64,13 +70,15 @@
     --delete-border: #7f1d1d;
     --delete-text: #f87171;
 
-    --table-header-bg: #1c1917;
-    --table-border: #44403c;
+    /* テーブル */
+    --table-header-bg: #0f172a;
+    --table-border: #334155;
 
-    --status-online-bg: #064e3b;
-    --status-online-text: #4ade80;
-    --status-offline-bg: #78350f;
-    --status-offline-text: #fef08a;
+    /* ステータスバー */
+    --status-online-bg: #115e59;
+    --status-online-text: #2dd4bf;
+    --status-offline-bg: #7c2d12;
+    --status-offline-text: #ff844c;
   }
 }
 
@@ -152,18 +160,18 @@ button {
 .sync-info, .last-update { color: var(--text-sub); font-size: 12px; }
 
 /* ==========================================
-   5. 集計カード（共通）
+   5. 集計カード（落ち着いたダークスレート）
    ========================================== */
 .summary-box { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
 .summary-grid { display: flex; flex-direction: column; gap: 16px; }
 
 .summary-card {
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  background: linear-gradient(135deg, #334155 0%, #0f172a 100%);
   border-radius: 16px;
   padding: 16px 10px;
   text-align: center;
   color: #ffffff;
-  box-shadow: 0 8px 16px -3px rgba(234, 88, 12, 0.3);
+  box-shadow: 0 8px 16px -3px rgba(15, 23, 42, 0.3);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -213,7 +221,7 @@ button {
 button.btn-input {
   padding: 18px 10px; font-size: 24px; font-weight: 700;
   background: var(--btn-bg); color: var(--btn-text);
-  border: 1px solid var(--btn-border); border-radius: 16px; cursor: pointer;
+  border: 1.5px solid var(--btn-border); border-radius: 16px; cursor: pointer;
   box-shadow: 0 5px 0 var(--btn-shadow); transition: all 0.06s ease;
   user-select: none; -webkit-user-select: none;
 }
@@ -304,6 +312,7 @@ tr:last-child td { border-bottom: none; }
 .settings-inputs input:focus {
   border-color: var(--primary);
 }
+
 /* ==========================================
    8. 集計モニター固有パーツ (viewer.html)
    ========================================== */
@@ -340,6 +349,7 @@ tr:last-child td { border-bottom: none; }
   color: #ffffff;
   box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
+
 /* ==========================================
    9. パスワード認証画面 (input.html)
    ========================================== */
