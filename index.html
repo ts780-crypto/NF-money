@@ -346,7 +346,7 @@
       if (navigator.onLine) {
         statusBadge.className = "net-badge online";
         statusText.textContent = "オンライン";
-        syncPendingLogs(); // オンライン復帰時に未送信データを送信
+        syncPendingLogs();
       } else {
         statusBadge.className = "net-badge offline";
         statusText.textContent = "オフライン";
@@ -358,13 +358,11 @@
     async function syncPendingLogs() {
       if (!navigator.onLine || pendingLogs.length === 0) return;
 
-      const syncInfo = document.getElementById('syncInfo');
-      syncInfo.textContent = "未送信データを同期中...";
-
       const itemsToSync = [...pendingLogs];
       for (const item of itemsToSync) {
         try {
           await dbRef.push({
+            id: item.id, // ★固有IDを含めて送信することで二重カウントを防止
             date: item.date,
             amount: item.amount,
             user: item.user,
@@ -375,7 +373,7 @@
           savePendingLogs();
         } catch (err) {
           console.error("送信エラー:", err);
-          break; // 通信エラーが起きれば一旦中断
+          break;
         }
       }
       renderData();
@@ -400,7 +398,7 @@
         timestamp: Date.now()
       };
 
-      // 1. まずローカル配列＆localStorageに保存（再読み込み対策）
+      // 1. まずローカル配列＆localStorageに保存
       pendingLogs.push(logItem);
       savePendingLogs();
       renderData();
@@ -416,8 +414,14 @@
       const tbody = document.getElementById('logTableBody');
       tbody.innerHTML = '';
 
-      // Firebase上のデータ と ローカルの未送信データを統合
-      const allLogs = [...remoteLogs, ...pendingLogs.map(p => ({ ...p, isPending: true }))];
+      // Firebase上に既に存在するIDを取得
+      const remoteIds = new Set(remoteLogs.map(r => r.id).filter(Boolean));
+
+      // Firebaseにまだ届いていない未送信データのみを抽出（ここで二重集計を防ぐ）
+      const activePendingLogs = pendingLogs.filter(p => !remoteIds.has(p.id));
+
+      // Firebase上のデータ と 未送信データを統合
+      const allLogs = [...remoteLogs, ...activePendingLogs.map(p => ({ ...p, isPending: true }))];
 
       const count = allLogs.length;
       const sum = allLogs.reduce((total, item) => total + Number(item.amount || 0), 0);
@@ -427,8 +431,8 @@
       document.getElementById('totalAmount').innerHTML = `${sum.toLocaleString()} <span class="unit">円</span>`;
 
       const syncInfo = document.getElementById('syncInfo');
-      if (pendingLogs.length > 0) {
-        syncInfo.textContent = `未送信: ${pendingLogs.length}件`;
+      if (activePendingLogs.length > 0) {
+        syncInfo.textContent = `未送信: ${activePendingLogs.length}件`;
         syncInfo.style.color = 'var(--cancel-text)';
       } else {
         syncInfo.textContent = "全データ同期完了";
@@ -454,11 +458,14 @@
 
     // --- 操作機能 ---
     function 直近1件削除() {
+      const remoteIds = new Set(remoteLogs.map(r => r.id).filter(Boolean));
+      const activePendingLogs = pendingLogs.filter(p => !remoteIds.has(p.id));
+
       // 未送信（ローカル）の最新データがあればそれを削除
-      if (pendingLogs.length > 0) {
-        const lastPending = pendingLogs[pendingLogs.length - 1];
+      if (activePendingLogs.length > 0) {
+        const lastPending = activePendingLogs[activePendingLogs.length - 1];
         if (confirm(`【未送信データ】直近の記録を取り消しますか？\n・金額: ${lastPending.amount}円`)) {
-          pendingLogs.pop();
+          pendingLogs = pendingLogs.filter(p => p.id !== lastPending.id);
           savePendingLogs();
           renderData();
         }
@@ -478,7 +485,10 @@
     }
 
     function csvダウンロード() {
-      const allLogs = [...remoteLogs, ...pendingLogs];
+      const remoteIds = new Set(remoteLogs.map(r => r.id).filter(Boolean));
+      const activePendingLogs = pendingLogs.filter(p => !remoteIds.has(p.id));
+      const allLogs = [...remoteLogs, ...activePendingLogs];
+
       if (allLogs.length === 0) {
         alert('データがありません');
         return;
@@ -486,7 +496,7 @@
 
       let csvContent = '\uFEFF日時,金額,担当者,ステータス\n';
       allLogs.forEach(item => {
-        const status = item.id ? '未送信' : '同期済';
+        const status = activePendingLogs.some(p => p.id === item.id) ? '未送信' : '同期済';
         csvContent += `"${item.date}",${item.amount},"${item.user || ''}","${status}"\n`;
       });
 
