@@ -3,8 +3,8 @@
   "short_name": "NF受付",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#faf6f0",
-  "theme_color": "#ea580c",
+  "background_color": "#0f172a",
+  "theme_color": "#1e40af",
   "icons": [
     {
       "src": "apple-touch-icon.png",
