@@ -67,13 +67,26 @@
     </div>
   </div>
 
-  <!-- 金額ボタン -->
-  <div class="btn-grid">
-    <button class="btn-input" onclick="記録(250)">250<span class="btn-unit">円</span></button>
-    <button class="btn-input" onclick="記録(200)">200<span class="btn-unit">円</span></button>
-    <button class="btn-input" onclick="記録(150)">150<span class="btn-unit">円</span></button>
-    <button class="btn-input" onclick="記録(100)">100<span class="btn-unit">円</span></button>
+  <!-- 金額ボタン設定ヘッダー -->
+  <div class="btn-header">
+    <span class="btn-header-title">金額ショートカット</span>
+    <button type="button" class="btn-settings-toggle" onclick="toggleSettings()">⚙️ 金額変更</button>
   </div>
+
+  <!-- 金額設定パネル（初期状態は非表示） -->
+  <div id="settingsPanel" class="settings-panel" style="display: none;">
+    <p class="settings-desc">ボタンの金額を変更できます（この端末のみ保存）</p>
+    <div class="settings-inputs">
+      <input type="number" id="preset1" placeholder="ボタン1">
+      <input type="number" id="preset2" placeholder="ボタン2">
+      <input type="number" id="preset3" placeholder="ボタン3">
+      <input type="number" id="preset4" placeholder="ボタン4">
+    </div>
+    <button type="button" class="btn-action" style="width: 100%; margin-top: 8px;" onclick="savePresets()">設定を保存</button>
+  </div>
+
+  <!-- 金額ボタン（JavaScriptで自動出力されます） -->
+  <div class="btn-grid" id="btnGrid"></div>
 
   <!-- 操作用ボタン -->
   <div class="action-group">
