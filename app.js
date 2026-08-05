@@ -153,7 +153,8 @@ function initRealtimeStream() {
       const rawData = res.data || {};
       remoteLogs = Object.keys(rawData).map(key => ({ key, ...rawData[key] }));
     } else {
-      const key = res.path.replace('/', '');
+      // 💡【修正箇所】1階層目のIDキーを確実に取得できるように修正
+      const key = res.path.split('/')[1];
       if (res.data === null) {
         remoteLogs = remoteLogs.filter(item => item.key !== key);
       } else {
@@ -263,7 +264,8 @@ function recordLog(amount) {
   const dateStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
 
   const logItem = {
-    id: `${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+    // 💡【修正箇所】非推奨の substr(2, 5) を slice(2, 7) に変更
+    id: `${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
     date: dateStr,
     amount: amount,
     user: userName,
@@ -340,12 +342,15 @@ function renderData() {
 
 // --- 操作機能 ---
 async function deleteLastLog() {
+  const userName = document.getElementById('userName').value || "未設定";
   const remoteIds = new Set(remoteLogs.map(r => r.id).filter(Boolean));
   const activePendingLogs = pendingLogs.filter(p => !remoteIds.has(p.id));
 
-  if (activePendingLogs.length > 0) {
-    const lastPending = activePendingLogs[activePendingLogs.length - 1];
-    if (confirm(`【未送信データ】直近の記録を取り消しますか？\n・金額: ${lastPending.amount}円`)) {
+  // 💡【修正箇所】自分の未送信ログだけを対象にして削除
+  const myPendingLogs = activePendingLogs.filter(p => (p.user || "未設定") === userName);
+  if (myPendingLogs.length > 0) {
+    const lastPending = myPendingLogs[myPendingLogs.length - 1];
+    if (confirm(`【未送信データ】${userName}さんの直近の記録を取り消しますか？\n・金額: ${lastPending.amount}円`)) {
       pendingLogs = pendingLogs.filter(p => p.id !== lastPending.id);
       savePendingLogs();
       renderData();
@@ -353,9 +358,11 @@ async function deleteLastLog() {
     return;
   }
 
-  if (remoteLogs.length > 0) {
-    const lastLog = remoteLogs[remoteLogs.length - 1];
-    if (confirm(`直近の記録を取り消しますか？\n・日時: ${lastLog.date}\n・金額: ${lastLog.amount}円`)) {
+  // 💡【修正箇所】自分の同期済みログだけを対象にして削除（他人のデータを消さない）
+  const myRemoteLogs = remoteLogs.filter(r => (r.user || "未設定") === userName);
+  if (myRemoteLogs.length > 0) {
+    const lastLog = myRemoteLogs[myRemoteLogs.length - 1];
+    if (confirm(`【${userName}さんの直近の記録】を取り消しますか？\n・日時: ${lastLog.date}\n・金額: ${lastLog.amount}円`)) {
       try {
         await fetch(`${DB_URL}/${lastLog.key}.json`, { method: 'DELETE' });
       } catch (err) {
@@ -365,7 +372,7 @@ async function deleteLastLog() {
     return;
   }
 
-  alert('削除するデータがありません');
+  alert(`${userName}さんの削除可能なデータがありません`);
 }
 
 function downloadCSV() {
@@ -407,8 +414,8 @@ async function deleteAllLogs() {
   }
 }
 
-// 日本語関数名の互換性エイリアス（HTML側の書き換えがなくても動くように保護）
-const 記録 = recordLog;
-const 直近1件削除 = deleteLastLog;
-const csvダウンロード = downloadCSV;
-const データ全削除 = deleteAllLogs;
+// 💡【修正箇所】const宣言から window オブジェクトへの割り当てに変更（HTMLの onclick から確実に動くように補強）
+window.記録 = recordLog;
+window.直近1件削除 = deleteLastLog;
+window.csvダウンロード = downloadCSV;
+window.データ全削除 = deleteAllLogs;
