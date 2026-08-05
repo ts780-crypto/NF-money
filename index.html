@@ -73,7 +73,7 @@
     <button type="button" class="btn-settings-toggle" onclick="toggleSettings()">⚙️ 金額変更</button>
   </div>
 
-  <!-- 金額設定パネル（初期状態は非表示） -->
+  <!-- 金額設定パネル -->
   <div id="settingsPanel" class="settings-panel" style="display: none;">
     <p class="settings-desc">ボタンの金額を変更できます（この端末のみ保存）</p>
     <div class="settings-inputs">
@@ -82,7 +82,10 @@
       <input type="number" id="preset3" placeholder="ボタン3">
       <input type="number" id="preset4" placeholder="ボタン4">
     </div>
-    <button type="button" class="btn-action" style="width: 100%; margin-top: 8px;" onclick="savePresets()">設定を保存</button>
+    <div style="display: flex; gap: 8px; margin-top: 10px;">
+      <button type="button" class="btn-action" style="flex: 1;" onclick="resetPresets()">デフォルトに戻す</button>
+      <button type="button" class="btn-action" style="flex: 1; background-color: var(--primary); color: #ffffff; border: none;" onclick="savePresets()">設定を保存</button>
+    </div>
   </div>
 
   <!-- 金額ボタン（JavaScriptで自動出力されます） -->
