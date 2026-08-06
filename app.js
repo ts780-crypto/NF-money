@@ -401,7 +401,7 @@ function downloadCSV() {
 }
 
 async function deleteAllLogs() {
-  if (confirm('全員の共有記録およびローカルの未送信データをすべて削除しますか？\n※元に戻せません')) {
+  if (confirm('全員の共有記録およびローカルの未送信データをすべて削除しますか？\n※元に戻せません。NF期間中は絶対に消さないでください')) {
     pendingLogs = [];
     remoteLogs = [];
     savePendingLogs();
